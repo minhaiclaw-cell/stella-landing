@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stella — Your AI Real Estate Team</title>
+    <meta name="description" content="Stella is a team of AI specialists built for Canadian real estate professionals. Not a chatbot — a full team that works 24/7, manages your listings, closes deals, and grows your business.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #FFFFFF;
+            --bg-warm: #FAFAF8;
+            --bg-subtle: #F5F5F3;
+            --text: #1A1A1A;
+            --text-secondary: #555555;
+            --text-tertiary: #999999;
+            --border: #E8E8E6;
+            --border-light: #F0F0EE;
+            --accent: #D4594E;
+            --accent-hover: #C04238;
+            --accent-light: #FDF1F0;
+            --accent-bg: #FCE8E6;
+            --green: #2D8F6F;
+            --green-light: #E8F5F0;
+            --blue: #3B7DD8;
+            --blue-light: #EBF3FC;
+            --yellow: #C4880D;
+            --yellow-light: #FFF8EB;
+            --yellow-bg: #FEF3DC;
+            --purple: #7C5CBF;
+            --purple-light: #F3EFFB;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
+            --shadow-md: 0 4px 16px rgba(0,0,0,0.06);
+            --shadow-lg: 0 12px 40px rgba(0,0,0,0.08);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+        ::selection { background: var(--accent-light); color: var(--accent); }
+
+        /* ---- Highlights ---- */
+        mark { background: var(--yellow-bg); color: var(--text); padding: 2px 6px; border-radius: 3px; font-weight: 600; }
+        mark.accent { background: var(--accent-bg); color: var(--accent); }
+        mark.green { background: var(--green-light); color: var(--green); }
+        mark.blue { background: var(--blue-light); color: var(--blue); }
+        mark.purple { background: var(--purple-light); color: var(--purple); }
+
+        /* ---- NAV ---- */
+        nav {
+            position: fixed; top: 0; width: 100%; z-index: 100;
+            padding: 14px 0;
+            background: rgba(255,255,255,0.92);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border-light);
+        }
+        .nav-inner {
+            max-width: 1140px; margin: 0 auto; padding: 0 24px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .logo {
+            font-size: 19px; font-weight: 800; color: var(--text);
+            text-decoration: none; display: flex; align-items: center; gap: 8px;
+            letter-spacing: -0.3px;
+        }
+        .logo-mark {
+            width: 26px; height: 26px; background: var(--accent); border-radius: 7px;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 13px; font-weight: 800;
+        }
+        .nav-right { display: flex; align-items: center; gap: 8px; }
+        .nav-right input {
+            padding: 8px 14px; border-radius: 6px; border: 1px solid var(--border);
+            background: var(--bg); color: var(--text); font-size: 13px;
+            font-family: inherit; outline: none; width: 190px;
+        }
+        .nav-right input:focus { border-color: var(--accent); }
+        .nav-right input::placeholder { color: var(--text-tertiary); }
+
+        .btn {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 8px 18px; border-radius: 6px; font-size: 13px;
+            font-weight: 600; text-decoration: none; cursor: pointer;
+            border: none; font-family: inherit; transition: all 0.15s;
+        }
+        .btn-primary { background: var(--accent); color: white; }
+        .btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); }
+        .btn-ghost { background: transparent; color: var(--text-secondary); border: 1px solid var(--border); }
+        .btn-ghost:hover { background: var(--bg-subtle); }
+        .btn-lg { padding: 13px 28px; font-size: 15px; border-radius: 8px; }
+
+        /* ---- HERO ---- */
+        .hero { padding: 150px 24px 100px; text-align: center; }
+        .hero-inner { max-width: 720px; margin: 0 auto; }
+        .hero-eyebrow {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 5px 14px; background: var(--accent-light); border-radius: 20px;
+            font-size: 12px; font-weight: 600; color: var(--accent);
+            margin-bottom: 28px; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .hero-eyebrow .pulse {
+            width: 6px; height: 6px; background: var(--green);
+            border-radius: 50%; animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%,100% { opacity: 1; } 50% { opacity: 0.3; }
+        }
+        .hero h1 {
+            font-size: clamp(34px, 5vw, 52px); font-weight: 900;
+            line-height: 1.08; letter-spacing: -0.03em; margin-bottom: 20px;
+        }
+        .hero .subtitle {
+            font-size: clamp(16px, 1.8vw, 19px); color: var(--text-secondary);
+            line-height: 1.65; max-width: 560px; margin: 0 auto 36px;
+        }
+        .hero-ctas { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+        .hero-proof {
+            margin-top: 48px; display: flex; gap: 40px; justify-content: center;
+            flex-wrap: wrap;
+        }
+        .hero-proof-item { text-align: center; }
+        .hero-proof-item .number {
+            font-size: 28px; font-weight: 800; color: var(--text);
+            letter-spacing: -0.02em;
+        }
+        .hero-proof-item .label {
+            font-size: 12px; color: var(--text-tertiary);
+            text-transform: uppercase; letter-spacing: 1px; margin-top: 2px;
+        }
+
+        /* ---- SECTIONS ---- */
+        section { padding: 100px 24px; }
+        .container { max-width: 1100px; margin: 0 auto; }
+        .eyebrow {
+            font-size: 11px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 2px; color: var(--accent); margin-bottom: 12px;
+        }
+        .sec-title {
+            font-size: clamp(26px, 3.2vw, 38px); font-weight: 800;
+            letter-spacing: -0.02em; line-height: 1.15; margin-bottom: 14px;
+        }
+        .sec-sub {
+            font-size: 16px; color: var(--text-secondary);
+            max-width: 520px; line-height: 1.65;
+        }
+        .sec-header { margin-bottom: 56px; }
+        .sec-header.center { text-align: center; }
+        .sec-header.center .sec-sub { margin: 0 auto; }
+
+        /* ---- NOT A CHATBOT (Education Section) ---- */
+        .education-section { background: var(--bg-warm); }
+        .edu-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 48px;
+            align-items: center;
+        }
+        .edu-comparison {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+        }
+        .edu-col { padding: 24px; border-radius: 10px; }
+        .edu-col.old { background: #FFF5F5; border: 1px solid #FDE8E8; }
+        .edu-col.new { background: var(--green-light); border: 1px solid #C6E9DA; }
+        .edu-col h4 {
+            font-size: 13px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 1px; margin-bottom: 16px;
+        }
+        .edu-col.old h4 { color: #C53030; }
+        .edu-col.new h4 { color: var(--green); }
+        .edu-col li {
+            font-size: 14px; color: var(--text-secondary); padding: 5px 0;
+            list-style: none; display: flex; align-items: center; gap: 8px;
+        }
+        .edu-col.old li::before { content: '✗'; color: #E53E3E; font-weight: 700; }
+        .edu-col.new li::before { content: '✓'; color: var(--green); font-weight: 700; }
+
+        /* ---- PROBLEM ---- */
+        .problem-section { background: var(--bg); }
+        .problem-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+        }
+        .problem-card {
+            background: var(--bg-warm); border: 1px solid var(--border);
+            border-radius: 10px; padding: 24px; transition: all 0.2s;
+        }
+        .problem-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+        .problem-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+        .problem-card p { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+        .problem-card .stat {
+            display: inline-block; margin-top: 10px; padding: 3px 10px;
+            background: var(--yellow-bg); border-radius: 4px;
+            font-size: 12px; font-weight: 600; color: var(--yellow);
+        }
+
+        /* ---- THE MATH ---- */
+        .math-section { background: var(--bg-warm); }
+        .math-table {
+            width: 100%; border-collapse: collapse;
+            background: var(--bg); border: 1px solid var(--border);
+            border-radius: 10px; overflow: hidden;
+        }
+        .math-table th, .math-table td {
+            padding: 14px 20px; text-align: left; font-size: 14px;
+            border-bottom: 1px solid var(--border);
+        }
+        .math-table th {
+            background: var(--bg-subtle); font-weight: 700; font-size: 11px;
+            text-transform: uppercase; letter-spacing: 1px; color: var(--text-secondary);
+        }
+        .math-table td:first-child { font-weight: 600; }
+        .math-table td { color: var(--text-secondary); }
+        .math-table tr:last-child td { border-bottom: none; }
+        .math-table .total { background: var(--accent-light); }
+        .math-table .total td { font-weight: 700; color: var(--text); }
+        .math-table .savings { color: var(--green); font-weight: 800; }
+        .math-table .included { color: var(--green); font-weight: 700; }
+
+        /* ---- TEAM ---- */
+        .team-section { background: var(--bg); }
+        .team-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+            gap: 20px;
+        }
+        .team-card {
+            background: var(--bg); border: 1px solid var(--border);
+            border-radius: 12px; padding: 28px; transition: all 0.2s;
+            position: relative; overflow: hidden;
+        }
+        .team-card:hover { box-shadow: var(--shadow-md); transform: translateY(-3px); }
+        .team-card-top { display: flex; align-items: center; gap: 16px; margin-bottom: 14px; }
+
+        /* Hand-drawn style SVG avatars */
+        .avatar {
+            width: 56px; height: 56px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; position: relative;
+        }
+        .avatar svg { width: 56px; height: 56px; }
+
+        .team-card .name { font-size: 17px; font-weight: 700; }
+        .team-card .role {
+            font-size: 12px; font-weight: 600; text-transform: uppercase;
+            letter-spacing: 0.5px; margin-top: 2px;
+        }
+        .team-card p { font-size: 14px; color: var(--text-secondary); line-height: 1.6; }
+        .team-card .skills {
+            display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px;
+        }
+        .team-card .skill {
+            padding: 4px 10px; background: var(--bg-subtle);
+            border-radius: 20px; font-size: 11px;
+            color: var(--text-secondary); font-weight: 500;
+        }
+        .team-card .hire-badge {
+            position: absolute; top: 16px; right: 16px;
+            padding: 3px 10px; border-radius: 20px;
+            font-size: 10px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .team-card .hire-badge.active { background: var(--green-light); color: var(--green); }
+
+        /* ---- HOW IT WORKS ---- */
+        .how-section { background: var(--bg-warm); }
+        .steps {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 0; position: relative;
+        }
+        .steps::before {
+            content: ''; position: absolute; top: 24px; left: 40px; right: 40px;
+            height: 2px; background: var(--border);
+        }
+        .step-item { text-align: center; position: relative; padding: 0 16px; }
+        .step-num {
+            width: 48px; height: 48px; border-radius: 50%;
+            background: var(--bg); border: 2px solid var(--accent);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; font-weight: 800; color: var(--accent);
+            margin: 0 auto 16px; position: relative; z-index: 1;
+        }
+        .step-item h3 { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+        .step-item p { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+
+        /* ---- DEMO ---- */
+        .demo-section { background: var(--bg); }
+        .demo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: center; }
+        .chat-window {
+            background: var(--bg); border: 1px solid var(--border);
+            border-radius: 14px; overflow: hidden; box-shadow: var(--shadow-lg);
+        }
+        .chat-head {
+            padding: 12px 16px; border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; gap: 10px; background: var(--bg-warm);
+        }
+        .chat-dot {
+            width: 28px; height: 28px; background: var(--accent); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 12px; font-weight: 700;
+        }
+        .chat-head-name { font-weight: 700; font-size: 13px; }
+        .chat-head-status { font-size: 11px; color: var(--green); }
+        .chat-body { padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+        .msg {
+            max-width: 82%; padding: 10px 14px; border-radius: 14px;
+            font-size: 13px; line-height: 1.5;
+        }
+        .msg.user {
+            align-self: flex-end; background: var(--accent); color: white;
+            border-bottom-right-radius: 4px;
+        }
+        .msg.bot {
+            align-self: flex-start; background: var(--bg-subtle);
+            border: 1px solid var(--border); border-bottom-left-radius: 4px;
+        }
+        .msg .ts { font-size: 10px; opacity: 0.5; margin-top: 4px; }
+        .demo-text .checklist {
+            list-style: none; display: flex; flex-direction: column; gap: 10px; margin-top: 20px;
+        }
+        .demo-text .checklist li {
+            display: flex; align-items: center; gap: 10px;
+            font-size: 14px; color: var(--text-secondary);
+        }
+        .demo-text .checklist li .check {
+            width: 20px; height: 20px; border-radius: 50%;
+            background: var(--green-light); color: var(--green);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 11px; font-weight: 700; flex-shrink: 0;
+        }
+
+        /* ---- PRICING ---- */
+        .pricing-section { background: var(--bg-warm); }
+        .pricing-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 16px; max-width: 940px; margin: 0 auto;
+        }
+        .price-card {
+            background: var(--bg); border: 1px solid var(--border);
+            border-radius: 12px; padding: 32px; transition: all 0.2s;
+        }
+        .price-card.pop { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+        .price-card:hover { box-shadow: var(--shadow-md); }
+        .price-tier {
+            font-size: 11px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 1.5px; color: var(--text-tertiary); margin-bottom: 8px;
+        }
+        .price-amount { font-size: 42px; font-weight: 800; letter-spacing: -0.02em; }
+        .price-amount span { font-size: 14px; font-weight: 400; color: var(--text-tertiary); }
+        .price-desc { font-size: 13px; color: var(--text-secondary); margin: 4px 0 24px; }
+        .price-features { list-style: none; margin-bottom: 24px; }
+        .price-features li {
+            padding: 5px 0; font-size: 13px; color: var(--text-secondary);
+            display: flex; align-items: center; gap: 8px;
+        }
+        .price-features li::before { content: '✓'; color: var(--green); font-weight: 700; }
+
+        /* ---- CTA ---- */
+        .cta-section { text-align: center; background: var(--bg); padding: 100px 24px; }
+        .cta-section h2 {
+            font-size: clamp(26px, 3.5vw, 38px); font-weight: 800;
+            letter-spacing: -0.02em; margin-bottom: 14px;
+        }
+        .cta-section p {
+            font-size: 16px; color: var(--text-secondary);
+            max-width: 420px; margin: 0 auto 28px;
+        }
+        .email-form {
+            display: flex; gap: 10px; justify-content: center;
+            max-width: 400px; margin: 0 auto;
+        }
+        .email-form input {
+            flex: 1; padding: 12px 16px; border-radius: 8px;
+            border: 1px solid var(--border); background: var(--bg-warm);
+            color: var(--text); font-size: 14px; font-family: inherit; outline: none;
+        }
+        .email-form input:focus { border-color: var(--accent); }
+        .email-form input::placeholder { color: var(--text-tertiary); }
+
+        /* ---- FOOTER ---- */
+        footer {
+            padding: 36px 24px; border-top: 1px solid var(--border);
+            text-align: center; background: var(--bg-warm);
+        }
+        footer .logo { justify-content: center; margin-bottom: 8px; }
+        footer p { font-size: 12px; color: var(--text-tertiary); }
+
+        /* ---- RESPONSIVE ---- */
+        @media (max-width: 768px) {
+            .nav-right input { display: none; }
+            .edu-grid, .demo-grid { grid-template-columns: 1fr; }
+            .edu-comparison { grid-template-columns: 1fr; }
+            .steps { grid-template-columns: 1fr 1fr; gap: 24px; }
+            .steps::before { display: none; }
+            .pricing-grid { grid-template-columns: 1fr; }
+            .email-form { flex-direction: column; }
+            .hero { padding: 120px 20px 80px; }
+            section { padding: 80px 20px; }
+            .hero-proof { gap: 24px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+    <div class="nav-inner">
+        <a href="#" class="logo">
+            <span class="logo-mark">S</span> Stella
+        </a>
+        <form class="nav-right" onsubmit="signup(event, this)">
+            <input type="email" placeholder="Your email" required>
+            <button type="submit" class="btn btn-primary">Get early access</button>
+        </form>
+    </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+    <div class="hero-inner">
+        <div class="hero-eyebrow">
+            <span class="pulse"></span> Accepting early access applications
+        </div>
+        
+        <h1>Your real estate business<br>deserves a <mark class="accent">real team.</mark></h1>
+        
+        <p class="subtitle">Stella isn't a chatbot. She's a team of <mark>8 AI specialists</mark> who manage your listings, coordinate your transactions, nurture your leads, and run your marketing — <mark class="green">24 hours a day, 7 days a week.</mark></p>
+        
+        <div class="hero-ctas">
+            <a href="#waitlist" class="btn btn-primary btn-lg">Hire your team →</a>
+            <a href="#team" class="btn btn-ghost btn-lg">Meet the team</a>
+        </div>
+        
+        <div class="hero-proof">
+            <div class="hero-proof-item">
+                <div class="number">8</div>
+                <div class="label">AI specialists</div>
+            </div>
+            <div class="hero-proof-item">
+                <div class="number">24/7</div>
+                <div class="label">Always working</div>
+            </div>
+            <div class="hero-proof-item">
+                <div class="number">$96K+</div>
+                <div class="label">Saved per year</div>
+            </div>
+            <div class="hero-proof-item">
+                <div class="number">&lt;1 min</div>
+                <div class="label">Lead response</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- NOT A CHATBOT -->
+<section class="education-section">
+    <div class="container">
+        <div class="edu-grid">
+            <div>
+                <div class="eyebrow">This isn't what you think</div>
+                <h2 class="sec-title">Not a chatbot.<br>Not a tool.<br>A <mark class="accent">full team.</mark></h2>
+                <p class="sec-sub" style="margin-top: 16px;">Most "AI assistants" answer questions. Stella <strong>takes action</strong>. She manages your calendar, writes your listing descriptions, follows up with your leads, posts your content, and tracks every deadline — without you having to ask.</p>
+                <p class="sec-sub" style="margin-top: 12px;">Think of it as hiring <mark>an entire support staff</mark> — admin, TC, marketing manager, ISA — that works around the clock for a fraction of the cost.</p>
+            </div>
+            <div class="edu-comparison">
+                <div class="edu-col old">
+                    <h4>❌ Traditional chatbot</h4>
+                    <ul>
+                        <li>Answers questions when asked</li>
+                        <li>Forgets everything between sessions</li>
+                        <li>No real estate knowledge</li>
+                        <li>Can't take action on your behalf</li>
+                        <li>One generic assistant</li>
+                    </ul>
+                </div>
+                <div class="edu-col new">
+                    <h4>✓ Stella</h4>
+                    <ul>
+                        <li>Works proactively, 24/7</li>
+                        <li>Remembers every deal & client</li>
+                        <li>Built for Canadian real estate</li>
+                        <li>Sends emails, posts content, tracks deadlines</li>
+                        <li>Team of 8 specialists</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- PROBLEM -->
+<section class="problem-section">
+    <div class="container">
+        <div class="sec-header center">
+            <div class="eyebrow">The problem</div>
+            <h2 class="sec-title">You're doing the work of <mark>5 people.</mark></h2>
+            <p class="sec-sub">The average agent spends <mark class="accent">60-70%</mark> of their time on admin, not selling. That's not a business — it's a treadmill.</p>
+        </div>
+        <div class="problem-grid">
+            <div class="problem-card">
+                <h3>⚡ Leads go cold</h3>
+                <p><mark class="accent">78%</mark> of buyers go with the first agent who responds. But you're in a showing.</p>
+                <span class="stat">Avg response: 6+ hours</span>
+            </div>
+            <div class="problem-card">
+                <h3>📅 Deadlines slip</h3>
+                <p>Conditions, financing, inspections — miss one date and the entire deal falls apart.</p>
+                <span class="stat">$350-500 per TC per deal</span>
+            </div>
+            <div class="problem-card">
+                <h3>📢 Marketing? What marketing?</h3>
+                <p>You know you should post consistently, send newsletters, create brochures. But <mark>who has the time?</mark></p>
+                <span class="stat">$45-65K/yr for help</span>
+            </div>
+            <div class="problem-card">
+                <h3>💰 Hiring is expensive</h3>
+                <p>Admin + TC + marketing + ISA = <mark class="accent">$100K-180K/year</mark>. Most solo agents simply can't afford it.</p>
+                <span class="stat">The real cost of help</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- THE MATH -->
+<section class="math-section" id="math">
+    <div class="container">
+        <div class="sec-header center">
+            <div class="eyebrow">The math</div>
+            <h2 class="sec-title">Replace <mark>$100K+</mark> in annual costs.</h2>
+            <p class="sec-sub">Every role you'd need to hire — included in one subscription.</p>
+        </div>
+        <table class="math-table">
+            <thead>
+                <tr><th>Role you'd hire</th><th>Annual salary</th><th>With Stella</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Admin Assistant</td><td>$35,000 – $50,000</td><td class="included">✓ Included</td></tr>
+                <tr><td>Transaction Coordinator</td><td>$40,000 – $55,000</td><td class="included">✓ Included</td></tr>
+                <tr><td>Marketing Manager</td><td>$45,000 – $65,000</td><td class="included">✓ Included</td></tr>
+                <tr><td>Inside Sales Agent (ISA)</td><td>$35,000 – $45,000</td><td class="included">✓ Included</td></tr>
+                <tr><td>Virtual Assistant</td><td>$18,000 – $36,000</td><td class="included">✓ Included</td></tr>
+                <tr class="total">
+                    <td>Total annual cost</td>
+                    <td>$100,000 – $180,000</td>
+                    <td class="savings">$299/mo — $3,588/yr</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- MEET THE TEAM -->
+<section class="team-section" id="team">
+    <div class="container">
+        <div class="sec-header center">
+            <div class="eyebrow">Meet your team</div>
+            <h2 class="sec-title">One subscription. <mark class="accent">Eight specialists.</mark></h2>
+            <p class="sec-sub">Each team member is trained for Canadian real estate. They work together, share context, and never forget a single detail about your business.</p>
+        </div>
+        <div class="team-grid">
+            <!-- Sarah - Listing -->
+            <div class="team-card">
+                <span class="hire-badge active">Active</span>
+                <div class="team-card-top">
+                    <div class="avatar">
+                        <svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="28" cy="28" r="27" fill="#E8F5F0" stroke="#2D8F6F" stroke-width="1.5" stroke-dasharray="3 2"/>
+                            <circle cx="28" cy="20" r="8" fill="#2D8F6F" opacity="0.2"/>
+                            <path d="M28 20c-2.5 0-4.5 2-4.5 4.5S25.5 29 28 29s4.5-2 4.5-4.5S30.5 20 28 20z" fill="#2D8F6F" opacity="0.5"/>
+                            <circle cx="28" cy="22" r="6" fill="none" stroke="#2D8F6F" stroke-width="1.2" stroke-linecap="round"/>
+                            <path d="M18 42c0-5.5 4.5-10 10-10s10 4.5 10 10" fill="none" stroke="#2D8F6F" stroke-width="1.2" stroke-linecap="round"/>
+                            <path d="M24 16c1-3 7-3 8 0" fill="none" stroke="#2D8F6F" stroke-width="1" stroke-linecap="round"/>
+                            <circle cx="25.5" cy="21" r="0.8" fill="#2D8F6F"/>
+                            <circle cx="30.5" cy="21" r="0.8" fill="#2D8F6F"/>
+                            <path d="M26 25c0.8 0.8 3.2 0.8 4 0" fill="none" stroke="#2D8F6F" stroke-width="0.8" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="name">Sarah</div>
+                        <div class="role" style="color: var(--green);">Listing Specialist</div>
+                    </div>
+                </div>
+                <p>Writes MLS-ready descriptions, generates CMAs, analyzes property photos, and tracks every listing from active to sold.</p>
+                <div class="skills">
+                    <span class="skill">MLS descriptions</span>
+                    <span class="skill">CMA reports</span>
+                    <span class="skill">Photo analysis</span>
+                </div>
+            </div>
+
+            <!-- Marcus - TC -->
+            <div class="team-card">
+                <span class="hire-badge active">Active</span>
+                <div class="team-card-top">
+                    <div class="avatar">
+                        <svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="28" cy="28" r="27" fill="#EBF3FC" stroke="#3B7DD8" stroke-width="1.5" stroke-dasharray="3 2"/>
+                            <circle cx="28" cy="22" r="6" fill="none" stroke="#3B7DD8" stroke-width="1.2" stroke-linecap="round"/>
+                            <path d="M18 42c0-5.5 4.5-10 10-10s10 4.5 10 10" fill="none" stroke="#3B7DD8" stroke-width="1.2" stroke-linecap="round"/>
+                            <path d="M23 15c2-2 8-2 10 0" fill="none" stroke="#3B7DD8" stroke-width="1" stroke-linecap="round"/>
+                            <rect x="22" y="14" width="12" height="3" rx="1.5" fill="#3B7DD8" opacity="0.15"/>
+                            <circle cx="25.5" cy="21" r="0.8" fill="#3B7DD8"/>
+                            <circle cx="30.5" cy="21" r="0.8" fill="#3B7DD8"/>
+                            <path d="M26.5 25c0.5 0.5 2.5 0.5 3 0" fill="none" stroke="#3B7DD8" stroke-width="0.8" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="name">Marcus</div>
+                        <div class="role" style="color: var(--blue);">Transaction Coordinator</div>
+                    </div>
+                </div>
+                <p>Tracks every deadline, manages document collection, coordinates all parties, and <mark>never misses a condition date.</mark></p>
+                <div class="skills">
+                    <span class="skill">Deadline tracking</span>
+                    <span class="skill">Document management</span>
+                    <span class="skill">Party coordination</span>
+                </div>
+            </div>
+
+            <!-- Maya - Marketing -->
+            <div class="team-card">
+                <span class="hire-badge active">Active</span>
+                <div class="team-card-top">
+                    <div class="avatar">
+                        <svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="28" cy="28" r="27" fill="#FDF1F0" stroke="#D4594E" stroke-width="1.5" stroke-dasharray="3 2"/>
+                            <circle cx="28" cy="22" r="6" fill="none" stroke="#D4594E" stroke-width="1.2" stroke-linecap="round"/>
+                            <path d="M18 42c0-5.5 4.5-10 10-10s10 4.5 10 10" fill="none" stroke="#D4594E" stroke-width="1.2" stroke-linecap="round"/>
+                            <path d="M22 18c1-4 4-5 6-5s5 1 6 5" fill="none" stroke="#D4594E" stroke-width="1" stroke-linecap="round"/>
+                            <path d="M22 18c-1 2-1 6 0 8" fill="none" stroke="#D4594E" stroke-width="0.8" stroke-linecap="round"/>
+                            <circle cx="25.5" cy="21" r="0.8" fill="#D4594E"/>
+                            <circle cx="30.5" cy="21" r="0.8" fill="#D4594E"/>
+                            <path d="M26 25c0.8 0.6 3.2 0.6 4 0" fill="none" stroke="#D4594E" stroke-width="0.8" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="name">Maya</div>
+                        <div class="role" style="color: var(--accent);">Marketing Manager</div>
+                    </div>
+                </div>
+                <p>Creates social posts, writes newsletters, builds brochures, and manages your content calendar — all on autopilot.</p>
+                <div class="skills">
+                    <span class="skill">Social media</span>
+                    <span class="skill">Newsletters</span>
+                    <span class="skill">Brochures</span>
+                </div>
+            </div>
+
+            <!-- Leo - Lead Gen -->
+            <div class="team-card">
+                <span class="hire-badge active">Active</span>
+                <div class="team-card-top">
+                    <div class="avatar">
+                        <svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="28" cy="28" r="27" fill="#FFF8EB" stroke="#C4880D" stroke-width="1.5" stroke-dasharray="3 2"/>
+                            <circle cx="28" cy="22" r="6" fill="none" stroke="#C4880D" stroke-width="1.2" stroke-linecap="round"/>
+                            <path d="M18 42c0-5.5 4.5-10 10-10s10 4.5 10 10" fill="none" stroke="#C4880D" stroke-width="1.2" stroke-linecap="round"/>
+                            <path d="M24 15c1-1 3-2 4-2s3 1 4 2" fill="none" stroke="#C4880D" stroke-width="1" stroke-linecap="round"/>
+                            <circle cx="25.5" cy="21" r="0.8" fill="#C4880D"/>
+                            <circle cx="30.5" cy="21" r="0.8" fill="#C4880D"/>
+                            <path d="M25.5 25c1 1 4 1 5 0" fill="none" stroke="#C4880D" stroke-width="0.8" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="name">Leo</div>
+                        <div class="role" style="color: var(--yellow);">Lead Specialist</div>
+                    </div>
+                </div>
+                <p>Responds to inquiries in <mark class="green">under 60 seconds</mark>, scores leads, runs drip campaigns, and keeps your sphere warm.</p>
+                <div class="skills">
+                    <span class="skill">Instant response</span>
+                    <span class="skill">Lead scoring</span>
+                    <span class="skill">Drip campaigns</span>
+                </div>
+            </div>
+
+            <!-- Dr. Chen - Research -->
+            <div class="team-card">
+                <span class="hire-badge active">Active</span>
+                <div class="team-card-top">
+                    <div class="avatar">
+                        <svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="28" cy="28" r="27" fill="#F3EFFB" stroke="#7C5CBF" stroke-width="1.5" stroke-dasharray="3 2"/>
+                            <circle cx="28" cy="22" r="6" fill="none" stroke="#7C5CBF" stroke-width="1.2" stroke-linecap="round"/>
+                            <path d="M18 42c0-5.5 4.5-10 10-10s10 4.5 10 10" fill="none" stroke="#7C5CBF" stroke-width="1.2" stroke-linecap="round"/>
+                            <path d="M24 16c0-2 8-2 8 0" fill="none" stroke="#7C5CBF" stroke-width="1" stroke-linecap="round"/>
+                            <circle cx="25.5" cy="21" r="0.8" fill="#7C5CBF"/>
+                            <circle cx="30.5" cy="21" r="0.8" fill="#7C5CBF"/>
+                            <rect x="23" y="19" width="5" height="4" rx="1" fill="none" stroke="#7C5CBF" stroke-width="0.6" opacity="0.4"/>
+                            <path d="M26 25c0.5 0.4 3 0.4 3.5 0" fill="none" stroke="#7C5CBF" stroke-width="0.8" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="name">Dr. Chen</div>
+                        <div class="role" style="color: var(--purple);">Market Analyst</div>
+                    </div>
+                </div>
+                <p>Delivers weekly market reports, neighbourhood profiles, and trend analysis so you're always the most informed agent in the room.</p>
+                <div class="skills">
+                    <span class="skill">Market reports</span>
+                    <span class="skill">Trend analysis</span>
+                    <span class="skill">Neighbourhood data</span>
+                </div>
+            </div>
+
+            <!-- James - Comms -->
+            <div class="team-card">
+                <span class="hire-badge active">Active</span>
+                <div class="team-card-top">
+                    <div class="avatar">
+                        <svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="28" cy="28" r="27" fill="#FDF2E9" stroke="#C4651A" stroke-width="1.5" stroke-dasharray="3 2"/>
+                            <circle cx="28" cy="22" r="6" fill="none" stroke="#C4651A" stroke-width="1.2" stroke-linecap="round"/>
+                            <path d="M18 42c0-5.5 4.5-10 10-10s10 4.5 10 10" fill="none" stroke="#C4651A" stroke-width="1.2" stroke-linecap="round"/>
+                            <path d="M23 16c2-2 8-2 10 0" fill="none" stroke="#C4651A" stroke-width="1" stroke-linecap="round"/>
+                            <circle cx="25.5" cy="21" r="0.8" fill="#C4651A"/>
+                            <circle cx="30.5" cy="21" r="0.8" fill="#C4651A"/>
+                            <path d="M26 25c0.8 0.6 3.2 0.6 4 0" fill="none" stroke="#C4651A" stroke-width="0.8" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="name">James</div>
+                        <div class="role" style="color: #C4651A;">Client Relations</div>
+                    </div>
+                </div>
+                <p>Manages your calendar, coordinates showings, drafts professional emails, and handles every client touchpoint.</p>
+                <div class="skills">
+                    <span class="skill">Calendar sync</span>
+                    <span class="skill">Showing coordination</span>
+                    <span class="skill">Email drafts</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how-section" id="how">
+    <div class="container">
+        <div class="sec-header center">
+            <div class="eyebrow">How it works</div>
+            <h2 class="sec-title">Hire your team in <mark class="green">5 minutes.</mark></h2>
+            <p class="sec-sub">No training. No onboarding documents. No HR paperwork. Just connect and go.</p>
+        </div>
+        <div class="steps">
+            <div class="step-item">
+                <div class="step-num">1</div>
+                <h3>Sign up</h3>
+                <p>Pick your plan. Your private server spins up automatically.</p>
+            </div>
+            <div class="step-item">
+                <div class="step-num">2</div>
+                <h3>Connect</h3>
+                <p>Link your calendar, email, and MLS credentials.</p>
+            </div>
+            <div class="step-item">
+                <div class="step-num">3</div>
+                <h3>Delegate</h3>
+                <p>Text Stella on Telegram or WhatsApp. She handles the rest.</p>
+            </div>
+            <div class="step-item">
+                <div class="step-num">4</div>
+                <h3>Scale</h3>
+                <p>Your team learns and gets smarter every day.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- DEMO -->
+<section class="demo-section">
+    <div class="container">
+        <div class="demo-grid">
+            <div class="demo-text">
+                <div class="eyebrow">Talk to your team</div>
+                <h2 class="sec-title">Just text. They handle everything.</h2>
+                <p class="sec-sub">No apps to learn. No dashboards to check. Message Stella like you'd text a team member.</p>
+                <ul class="checklist">
+                    <li><span class="check">✓</span> Telegram, WhatsApp, or SMS</li>
+                    <li><span class="check">✓</span> Understands Canadian real estate</li>
+                    <li><span class="check">✓</span> Remembers every deal, every client</li>
+                    <li><span class="check">✓</span> Works proactively — not just when asked</li>
+                    <li><span class="check">✓</span> Your data stays on your own server</li>
+                </ul>
+            </div>
+            <div class="chat-window">
+                <div class="chat-head">
+                    <div class="chat-dot">S</div>
+                    <div><div class="chat-head-name">Stella</div><div class="chat-head-status">● Online</div></div>
+                </div>
+                <div class="chat-body">
+                    <div class="msg user">Just listed 42 Maple Ave in Leslieville. 3BR semi, $1.1M. Handle the marketing?<div class="ts">9:14 AM</div></div>
+                    <div class="msg bot">On it. Here's what I'm doing:<br><br>✓ MLS description drafted<br>✓ Social post created for IG & Facebook<br>✓ Property brochure generating<br>✓ Email blast queued for your buyer list<br><br>Also — conditions expire on your 88 Queen deal in 3 days. Want me to follow up with the buyer's lawyer?<div class="ts">9:14 AM</div></div>
+                    <div class="msg user">Yes. And remind me to call the inspector tomorrow at 10.<div class="ts">9:15 AM</div></div>
+                    <div class="msg bot">Done ✓<br><br>• Follow-up sent to buyer's lawyer<br>• Reminder set: Call inspector, Tue 10 AM<br><br>Your 42 Maple brochure is ready. Send to sellers?<div class="ts">9:15 AM</div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing-section" id="pricing">
+    <div class="container">
+        <div class="sec-header center">
+            <div class="eyebrow">Pricing</div>
+            <h2 class="sec-title">Simple pricing. No surprises.</h2>
+            <p class="sec-sub">No contracts. No hidden fees. Cancel anytime.</p>
+        </div>
+        <div class="pricing-grid">
+            <div class="price-card">
+                <div class="price-tier">Starter</div>
+                <div class="price-amount">$99 <span>/mo</span></div>
+                <div class="price-desc">For agents getting started</div>
+                <ul class="price-features">
+                    <li>Calendar & task management</li>
+                    <li>Email drafting & templates</li>
+                    <li>Listing description writer</li>
+                    <li>Daily morning briefing</li>
+                    <li>Basic CRM & contacts</li>
+                </ul>
+                <a href="#waitlist" class="btn btn-ghost" style="width:100%;justify-content:center;">Join waitlist</a>
+            </div>
+            <div class="price-card pop">
+                <div class="price-tier" style="color:var(--accent);">Professional</div>
+                <div class="price-amount">$299 <span>/mo</span></div>
+                <div class="price-desc">Full team — the sweet spot</div>
+                <ul class="price-features">
+                    <li>Everything in Starter</li>
+                    <li>All <strong>8</strong> AI team members</li>
+                    <li>Transaction coordination</li>
+                    <li>Marketing & content creation</li>
+                    <li>Lead nurture & auto-response</li>
+                    <li>Market research & CMAs</li>
+                    <li>MLS integration</li>
+                </ul>
+                <a href="#waitlist" class="btn btn-primary" style="width:100%;justify-content:center;">Join waitlist</a>
+            </div>
+            <div class="price-card">
+                <div class="price-tier">Team</div>
+                <div class="price-amount">$499 <span>/mo</span></div>
+                <div class="price-desc">For teams of 2–5 agents</div>
+                <ul class="price-features">
+                    <li>Everything in Professional</li>
+                    <li>Multi-agent support (up to 5)</li>
+                    <li>Team pipeline & analytics</li>
+                    <li>Shared contacts & listings</li>
+                    <li>Priority support</li>
+                </ul>
+                <a href="#waitlist" class="btn btn-ghost" style="width:100%;justify-content:center;">Join waitlist</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section" id="waitlist">
+    <div class="container">
+        <div class="eyebrow">Early access</div>
+        <h2>Ready to hire your AI team?</h2>
+        <p>Join the waitlist. Be the first to meet Stella when we launch.</p>
+        <form class="email-form" onsubmit="signup(event, this)">
+            <input type="email" placeholder="Enter your email" required>
+            <button type="submit" class="btn btn-primary">Join waitlist</button>
+        </form>
+        <p style="font-size:11px;color:var(--text-tertiary);margin-top:14px;">No spam. No commitment. Just early access.</p>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+    <div class="container">
+        <a href="#" class="logo"><span class="logo-mark">S</span> Stella</a>
+        <p>Your AI team for Canadian real estate.</p>
+        <p style="margin-top:6px;">© 2026 Stella. All rights reserved.</p>
+    </div>
+</footer>
+
+<script>
+function signup(e, form) {
+    e.preventDefault();
+    const input = form.querySelector('input');
+    input.value = '';
+    input.placeholder = '✓ You\'re on the list!';
+    setTimeout(() => { input.placeholder = form.closest('nav') ? 'Your email' : 'Enter your email'; }, 3000);
+}
+</script>
+</body>
+</html>
