@@ -718,7 +718,7 @@
                 <tr class="total">
                     <td>Total annual cost</td>
                     <td>$100,000 – $180,000</td>
-                    <td class="savings">$299/mo — $3,588/yr</td>
+                    <td class="savings">A fraction of the cost</td>
                 </tr>
             </tbody>
         </table>
@@ -1054,60 +1054,6 @@
     </div>
 </section>
 
-<!-- PRICING -->
-<section class="pricing-section" id="pricing">
-    <div class="container">
-        <div class="sec-header center">
-            <div class="eyebrow">Pricing</div>
-            <h2 class="sec-title">Simple pricing. No surprises.</h2>
-            <p class="sec-sub">No contracts. No hidden fees. Cancel anytime.</p>
-        </div>
-        <div class="pricing-grid">
-            <div class="price-card">
-                <div class="price-tier">Starter</div>
-                <div class="price-amount">$99 <span>/mo</span></div>
-                <div class="price-desc">For agents getting started</div>
-                <ul class="price-features">
-                    <li>Calendar & task management</li>
-                    <li>Email drafting & templates</li>
-                    <li>Listing description writer</li>
-                    <li>Daily morning briefing</li>
-                    <li>Basic CRM & contacts</li>
-                </ul>
-                <a href="#waitlist" class="btn btn-ghost" style="width:100%;justify-content:center;">Join waitlist</a>
-            </div>
-            <div class="price-card pop">
-                <div class="price-tier" style="color:var(--accent);">Professional</div>
-                <div class="price-amount">$299 <span>/mo</span></div>
-                <div class="price-desc">Full team — the sweet spot</div>
-                <ul class="price-features">
-                    <li>Everything in Starter</li>
-                    <li>All <strong>8</strong> AI team members</li>
-                    <li>Transaction coordination</li>
-                    <li>Marketing & content creation</li>
-                    <li>Lead nurture & auto-response</li>
-                    <li>Market research & CMAs</li>
-                    <li>MLS integration</li>
-                </ul>
-                <a href="#waitlist" class="btn btn-primary" style="width:100%;justify-content:center;">Join waitlist</a>
-            </div>
-            <div class="price-card">
-                <div class="price-tier">Team</div>
-                <div class="price-amount">$499 <span>/mo</span></div>
-                <div class="price-desc">For teams of 2–5 agents</div>
-                <ul class="price-features">
-                    <li>Everything in Professional</li>
-                    <li>Multi-agent support (up to 5)</li>
-                    <li>Team pipeline & analytics</li>
-                    <li>Shared contacts & listings</li>
-                    <li>Priority support</li>
-                </ul>
-                <a href="#waitlist" class="btn btn-ghost" style="width:100%;justify-content:center;">Join waitlist</a>
-            </div>
-        </div>
-    </div>
-</section>
-
 <!-- CTA -->
 <section class="cta-section" id="waitlist">
     <div class="container">
@@ -1132,12 +1078,45 @@
 </footer>
 
 <script>
-function signup(e, form) {
+async function signup(e, form) {
     e.preventDefault();
-    const input = form.querySelector('input');
-    input.value = '';
-    input.placeholder = '✓ You\'re on the list!';
-    setTimeout(() => { input.placeholder = form.closest('nav') ? 'Your email' : 'Enter your email'; }, 3000);
+    const input = form.querySelector('input[type="email"]');
+    const btn = form.querySelector('button');
+    const email = input.value.trim();
+    if (!email) return;
+
+    btn.disabled = true;
+    btn.textContent = 'Submitting...';
+
+    try {
+        const res = await fetch('https://formsubmit.co/ajax/2003minhanh@gmail.com', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify({ email: email, _subject: 'New Stella Waitlist Signup!', _template: 'table' })
+        });
+        if (res.ok) {
+            input.value = '';
+            input.placeholder = '✓ You\'re on the list!';
+            btn.textContent = '✓ Done!';
+            btn.style.background = '#2D8F6F';
+            setTimeout(() => {
+                input.placeholder = form.closest('nav') ? 'Your email' : 'Enter your email';
+                btn.textContent = form.closest('nav') ? 'Get early access' : 'Join waitlist';
+                btn.style.background = '';
+                btn.disabled = false;
+            }, 3000);
+        } else {
+            throw new Error('Submit failed');
+        }
+    } catch (err) {
+        btn.textContent = 'Try again';
+        btn.style.background = '#C53030';
+        btn.disabled = false;
+        setTimeout(() => {
+            btn.textContent = form.closest('nav') ? 'Get early access' : 'Join waitlist';
+            btn.style.background = '';
+        }, 2000);
+    }
 }
 </script>
 </body>
