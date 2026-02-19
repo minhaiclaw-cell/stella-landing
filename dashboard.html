@@ -1,0 +1,1727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stella — Mission Control</title>
+    <style>
+        :root {
+            --bg: #FFFFFF;
+            --bg-warm: #FAFAF8;
+            --bg-subtle: #F5F5F3;
+            --text: #1A1A1A;
+            --text-secondary: #555555;
+            --text-tertiary: #999999;
+            --border: #E8E5E0;
+            --border-light: #F0F0EE;
+            --accent: #D4594E;
+            --accent-hover: #C04238;
+            --accent-light: #FDF1F0;
+            --accent-bg: #FCE8E6;
+            --green: #2D8F6F;
+            --green-light: #E8F5F0;
+            --blue: #3B7DD8;
+            --blue-light: #EBF3FC;
+            --yellow: #C4880D;
+            --yellow-light: #FFF8EB;
+            --yellow-bg: #FEF3DC;
+            --purple: #7C5CBF;
+            --purple-light: #F3EFFB;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.06);
+            --shadow-lg: 0 8px 25px rgba(0,0,0,0.08);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg-warm);
+            color: var(--text);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        /* Layout */
+        .dashboard {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 240px;
+            background: var(--bg);
+            border-right: 1px solid var(--border);
+            padding: 24px 0;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
+            transition: transform 0.2s ease;
+        }
+
+        .sidebar.collapsed {
+            transform: translateX(-240px);
+        }
+
+        .logo-section {
+            padding: 0 24px 24px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 24px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text);
+            text-decoration: none;
+        }
+
+        .logo-mark {
+            width: 28px;
+            height: 28px;
+            background: var(--accent);
+            border-radius: 7px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            font-weight: 800;
+        }
+
+        .nav-menu {
+            flex: 1;
+            padding: 0 16px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            margin-bottom: 4px;
+            transition: all 0.2s ease;
+        }
+
+        .nav-item:hover {
+            background: var(--bg-subtle);
+            color: var(--text);
+        }
+
+        .nav-item.active {
+            background: var(--accent-light);
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .nav-icon {
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 240px;
+            transition: margin-left 0.2s ease;
+        }
+
+        .main-content.expanded {
+            margin-left: 0;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            background: var(--bg);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .top-bar-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .hamburger {
+            display: none;
+            width: 24px;
+            height: 24px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            flex-direction: column;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .hamburger span {
+            width: 18px;
+            height: 2px;
+            background: var(--text-secondary);
+            transition: all 0.2s ease;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: var(--bg-subtle);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 12px;
+            gap: 8px;
+            width: 300px;
+        }
+
+        .search-box input {
+            border: none;
+            background: none;
+            outline: none;
+            font-size: 14px;
+            color: var(--text);
+            flex: 1;
+        }
+
+        .search-box input::placeholder {
+            color: var(--text-tertiary);
+        }
+
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .notification-bell {
+            position: relative;
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: var(--bg-subtle);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .notification-bell:hover {
+            background: var(--border);
+        }
+
+        .notification-bell::after {
+            content: '';
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+            border: 2px solid var(--bg);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .quick-action-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .quick-action-btn:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+        }
+
+        /* Page Content */
+        .page-content {
+            padding: 32px;
+            max-width: 1400px;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* Stats Cards */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            transition: all 0.2s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .stat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .stat-title {
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .stat-trend {
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+
+        .stat-trend.up {
+            background: var(--green-light);
+            color: var(--green);
+        }
+
+        .stat-trend.down {
+            background: var(--accent-light);
+            color: var(--accent);
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--text);
+            letter-spacing: -0.02em;
+        }
+
+        .stat-subtitle {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            margin-top: 4px;
+        }
+
+        /* Two Column Layout */
+        .two-column {
+            display: grid;
+            grid-template-columns: 3fr 2fr;
+            gap: 32px;
+            margin-bottom: 32px;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .card-action {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            cursor: pointer;
+        }
+
+        /* Schedule */
+        .schedule-item {
+            display: flex;
+            gap: 16px;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .schedule-item:last-child {
+            border-bottom: none;
+        }
+
+        .schedule-time {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            min-width: 80px;
+        }
+
+        .schedule-content {
+            flex: 1;
+        }
+
+        .schedule-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+
+        .schedule-subtitle {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        /* Approval Queue */
+        .approval-item {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            transition: all 0.2s ease;
+        }
+
+        .approval-item:hover {
+            box-shadow: var(--shadow-sm);
+        }
+
+        .approval-content {
+            margin-bottom: 12px;
+        }
+
+        .approval-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+
+        .approval-subtitle {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .approval-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .approval-btn {
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            border: 1px solid var(--border);
+            background: var(--bg);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .approval-btn.primary {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .approval-btn.primary:hover {
+            background: var(--accent-hover);
+        }
+
+        .approval-btn:hover {
+            background: var(--bg-subtle);
+        }
+
+        /* Team Activity */
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-status {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .activity-status.online {
+            background: var(--green);
+        }
+
+        .activity-status.attention {
+            background: var(--accent);
+        }
+
+        .activity-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--bg-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .activity-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .activity-text {
+            font-size: 13px;
+            color: var(--text);
+            margin-bottom: 2px;
+        }
+
+        .activity-time {
+            font-size: 11px;
+            color: var(--text-tertiary);
+        }
+
+        /* Market Pulse */
+        .market-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            font-size: 13px;
+        }
+
+        .market-label {
+            color: var(--text-secondary);
+        }
+
+        .market-value {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .market-change {
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 6px;
+        }
+
+        .market-change.up {
+            color: var(--green);
+        }
+
+        .market-change.down {
+            color: var(--accent);
+        }
+
+        /* Pipeline */
+        .pipeline-board {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        .pipeline-column {
+            background: var(--bg-subtle);
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .pipeline-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .pipeline-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .pipeline-count {
+            background: var(--bg);
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 12px;
+        }
+
+        .pipeline-card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .pipeline-card:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .pipeline-card.buyer {
+            border-left: 4px solid var(--blue);
+        }
+
+        .pipeline-card.seller {
+            border-left: 4px solid var(--green);
+        }
+
+        .pipeline-client {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+
+        .pipeline-address {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .pipeline-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12px;
+        }
+
+        .pipeline-price {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .pipeline-days {
+            color: var(--text-tertiary);
+        }
+
+        .pipeline-agent {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--accent);
+            color: white;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Team Grid */
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        .team-card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .team-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .team-card.stella {
+            grid-column: 1 / -1;
+            max-width: 600px;
+            margin: 0 auto;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 1px var(--accent-light);
+        }
+
+        .team-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .team-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .team-avatar.stella { background: var(--accent); }
+        .team-avatar.sarah { background: var(--green); }
+        .team-avatar.marcus { background: var(--blue); }
+        .team-avatar.maya { background: var(--purple); }
+        .team-avatar.leo { background: var(--yellow); color: white; }
+
+        .team-info {
+            flex: 1;
+        }
+
+        .team-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 2px;
+        }
+
+        .team-role {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .team-status {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            font-size: 10px;
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .team-status.active {
+            background: var(--green-light);
+            color: var(--green);
+        }
+
+        .team-status.idle {
+            background: var(--yellow-light);
+            color: var(--yellow);
+        }
+
+        .team-status.attention {
+            background: var(--accent-light);
+            color: var(--accent);
+        }
+
+        .team-last-action {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .team-tasks {
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+
+        /* Coming Soon */
+        .coming-soon {
+            text-align: center;
+            padding: 80px 32px;
+        }
+
+        .coming-soon h2 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+
+        .coming-soon p {
+            font-size: 16px;
+            color: var(--text-secondary);
+        }
+
+        /* Chat Widget */
+        .chat-widget {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 1000;
+        }
+
+        .chat-button {
+            width: 60px;
+            height: 60px;
+            background: var(--accent);
+            border-radius: 50%;
+            border: none;
+            box-shadow: var(--shadow-lg);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .chat-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(212, 89, 78, 0.25);
+        }
+
+        .chat-button span {
+            color: white;
+            font-size: 24px;
+            font-weight: 800;
+        }
+
+        .chat-panel {
+            position: absolute;
+            bottom: 80px;
+            right: 0;
+            width: 350px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            box-shadow: var(--shadow-lg);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.2s ease;
+        }
+
+        .chat-panel.open {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .chat-panel-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .chat-panel-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+
+        .chat-panel-subtitle {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .chat-panel-body {
+            padding: 20px;
+        }
+
+        .chat-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            background: var(--bg-subtle);
+            outline: none;
+            margin-bottom: 16px;
+        }
+
+        .chat-input:focus {
+            border-color: var(--accent);
+        }
+
+        .chat-quick-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .chat-quick-action {
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 8px 12px;
+            text-align: left;
+            font-size: 13px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .chat-quick-action:hover {
+            background: var(--bg-subtle);
+            color: var(--text);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-240px);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .hamburger {
+                display: flex;
+            }
+
+            .search-box {
+                display: none;
+            }
+
+            .two-column {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+
+            .stats-row {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 16px;
+            }
+
+            .pipeline-board {
+                grid-template-columns: 1fr;
+            }
+
+            .page-content {
+                padding: 24px 16px;
+            }
+
+            .team-card.stella {
+                grid-column: 1;
+            }
+
+            .chat-panel {
+                width: calc(100vw - 32px);
+                right: -8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo-section">
+                <a href="#" class="logo">
+                    <span class="logo-mark">S</span>
+                    Stella
+                </a>
+            </div>
+            
+            <nav class="nav-menu">
+                <div class="nav-item active" data-page="home">
+                    <span class="nav-icon">🏠</span>
+                    Home
+                </div>
+                <div class="nav-item" data-page="pipeline">
+                    <span class="nav-icon">🏡</span>
+                    Pipeline
+                </div>
+                <div class="nav-item" data-page="contacts">
+                    <span class="nav-icon">👥</span>
+                    Contacts
+                </div>
+                <div class="nav-item" data-page="listings">
+                    <span class="nav-icon">🏘️</span>
+                    Listings
+                </div>
+                <div class="nav-item" data-page="calendar">
+                    <span class="nav-icon">📅</span>
+                    Calendar
+                </div>
+                <div class="nav-item" data-page="marketing">
+                    <span class="nav-icon">📣</span>
+                    Marketing
+                </div>
+                <div class="nav-item" data-page="analytics">
+                    <span class="nav-icon">📊</span>
+                    Analytics
+                </div>
+                <div class="nav-item" data-page="team">
+                    <span class="nav-icon">👥</span>
+                    Team
+                </div>
+                <div class="nav-item" data-page="settings">
+                    <span class="nav-icon">⚙️</span>
+                    Settings
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content" id="mainContent">
+            <!-- Top Bar -->
+            <header class="top-bar">
+                <div class="top-bar-left">
+                    <button class="hamburger" id="hamburger">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </button>
+                    <div class="search-box">
+                        <span>🔍</span>
+                        <input type="text" placeholder="Search deals, contacts, or ask Stella...">
+                    </div>
+                </div>
+                
+                <div class="top-bar-right">
+                    <button class="notification-bell">
+                        🔔
+                    </button>
+                    <div class="user-avatar">MN</div>
+                    <button class="quick-action-btn">+ New Deal</button>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <div class="page-content">
+                <!-- HOME PAGE -->
+                <div class="page active" id="home">
+                    <!-- Stats Row -->
+                    <div class="stats-row">
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-title">Active Deals</span>
+                                <span class="stat-trend up">↗ 12%</span>
+                            </div>
+                            <div class="stat-value">7</div>
+                            <div class="stat-subtitle">3 conditional, 4 firm</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-title">Hot Leads</span>
+                                <span class="stat-trend up">↗ 23%</span>
+                            </div>
+                            <div class="stat-value">12</div>
+                            <div class="stat-subtitle">8 buyers, 4 sellers</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-title">GCI This Month</span>
+                                <span class="stat-trend up">↗ 8%</span>
+                            </div>
+                            <div class="stat-value">$47,500</div>
+                            <div class="stat-subtitle">$38K last month</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-title">Avg Response Time</span>
+                                <span class="stat-trend up">↗ Fast</span>
+                            </div>
+                            <div class="stat-value">43s</div>
+                            <div class="stat-subtitle">Industry avg: 6hrs</div>
+                        </div>
+                    </div>
+
+                    <!-- Two Column Layout -->
+                    <div class="two-column">
+                        <!-- Left Column -->
+                        <div class="left-column">
+                            <!-- Today's Schedule -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">Today's Schedule</h3>
+                                    <span class="card-action">View all</span>
+                                </div>
+                                <div class="schedule-item">
+                                    <div class="schedule-time">9:00 AM</div>
+                                    <div class="schedule-content">
+                                        <div class="schedule-title">Showing: 123 Maple St</div>
+                                        <div class="schedule-subtitle">with Jennifer Chen</div>
+                                    </div>
+                                </div>
+                                <div class="schedule-item">
+                                    <div class="schedule-time">10:30 AM</div>
+                                    <div class="schedule-content">
+                                        <div class="schedule-title">Listing presentation: 45 Oak Ave</div>
+                                        <div class="schedule-subtitle">Mark & Lisa Thompson</div>
+                                    </div>
+                                </div>
+                                <div class="schedule-item">
+                                    <div class="schedule-time">1:00 PM</div>
+                                    <div class="schedule-content">
+                                        <div class="schedule-title">Lunch with mortgage broker</div>
+                                        <div class="schedule-subtitle">Domenic @ Meridian Credit</div>
+                                    </div>
+                                </div>
+                                <div class="schedule-item">
+                                    <div class="schedule-time">3:00 PM</div>
+                                    <div class="schedule-content">
+                                        <div class="schedule-title">Open house prep: 789 Queen St</div>
+                                        <div class="schedule-subtitle">Setup & staging check</div>
+                                    </div>
+                                </div>
+                                <div class="schedule-item">
+                                    <div class="schedule-time">4:30 PM</div>
+                                    <div class="schedule-content">
+                                        <div class="schedule-title">Condition deadline: 55 Elm St</div>
+                                        <div class="schedule-subtitle">Financing condition</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Approval Queue -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">Approval Queue</h3>
+                                    <span class="card-action">3 pending</span>
+                                </div>
+                                <div class="approval-item">
+                                    <div class="approval-content">
+                                        <div class="approval-title">Maya wants to post: "Just Listed: 123 Maple St"</div>
+                                        <div class="approval-subtitle">Instagram & Facebook • Ready to publish</div>
+                                    </div>
+                                    <div class="approval-actions">
+                                        <button class="approval-btn">Preview</button>
+                                        <button class="approval-btn primary">Approve</button>
+                                        <button class="approval-btn">Edit</button>
+                                    </div>
+                                </div>
+                                <div class="approval-item">
+                                    <div class="approval-content">
+                                        <div class="approval-title">Leo scored a lead 94/100: Sarah Chen</div>
+                                        <div class="approval-subtitle">Buyer, $1.2M Beach • High intent, pre-approved</div>
+                                    </div>
+                                    <div class="approval-actions">
+                                        <button class="approval-btn primary">Book Showing</button>
+                                        <button class="approval-btn">View Profile</button>
+                                    </div>
+                                </div>
+                                <div class="approval-item">
+                                    <div class="approval-content">
+                                        <div class="approval-title">Marcus: Financing condition due tomorrow</div>
+                                        <div class="approval-subtitle">55 Elm St • Client needs decision by 5 PM</div>
+                                    </div>
+                                    <div class="approval-actions">
+                                        <button class="approval-btn">Extend</button>
+                                        <button class="approval-btn primary">Waive</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Column -->
+                        <div class="right-column">
+                            <!-- Team Activity -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">Team Activity</h3>
+                                    <span class="card-action">Live</span>
+                                </div>
+                                <div class="activity-item">
+                                    <div class="activity-status online"></div>
+                                    <div class="activity-avatar" style="background: var(--yellow); color: white;">L</div>
+                                    <div class="activity-content">
+                                        <div class="activity-text">Leo: Responded to new inquiry — 38 seconds</div>
+                                        <div class="activity-time">2 min ago</div>
+                                    </div>
+                                </div>
+                                <div class="activity-item">
+                                    <div class="activity-status online"></div>
+                                    <div class="activity-avatar" style="background: var(--purple); color: white;">M</div>
+                                    <div class="activity-content">
+                                        <div class="activity-text">Maya: Scheduled 3 Instagram posts for this week</div>
+                                        <div class="activity-time">15 min ago</div>
+                                    </div>
+                                </div>
+                                <div class="activity-item">
+                                    <div class="activity-status online"></div>
+                                    <div class="activity-avatar" style="background: var(--blue); color: white;">M</div>
+                                    <div class="activity-content">
+                                        <div class="activity-text">Marcus: Sent condition reminder to buyer's lawyer</div>
+                                        <div class="activity-time">1 hr ago</div>
+                                    </div>
+                                </div>
+                                <div class="activity-item">
+                                    <div class="activity-status attention"></div>
+                                    <div class="activity-avatar" style="background: var(--purple); color: white;">R</div>
+                                    <div class="activity-content">
+                                        <div class="activity-text">Riley: Weekly market report ready for review</div>
+                                        <div class="activity-time">2 hrs ago</div>
+                                    </div>
+                                </div>
+                                <div class="activity-item">
+                                    <div class="activity-status online"></div>
+                                    <div class="activity-avatar" style="background: var(--green); color: white;">J</div>
+                                    <div class="activity-content">
+                                        <div class="activity-text">James: Confirmed 3 showings for tomorrow</div>
+                                        <div class="activity-time">3 hrs ago</div>
+                                    </div>
+                                </div>
+                                <div class="activity-item">
+                                    <div class="activity-status online"></div>
+                                    <div class="activity-avatar" style="background: var(--green); color: white;">S</div>
+                                    <div class="activity-content">
+                                        <div class="activity-text">Sarah: Updated CMA for 45 Oak Ave</div>
+                                        <div class="activity-time">4 hrs ago</div>
+                                    </div>
+                                </div>
+                                <div class="activity-item">
+                                    <div class="activity-status online"></div>
+                                    <div class="activity-avatar" style="background: var(--blue); color: white;">A</div>
+                                    <div class="activity-content">
+                                        <div class="activity-text">Alex: Drafted video script for 123 Maple tour</div>
+                                        <div class="activity-time">5 hrs ago</div>
+                                    </div>
+                                </div>
+                                <div class="activity-item">
+                                    <div class="activity-status online"></div>
+                                    <div class="activity-avatar" style="background: var(--text-secondary); color: white;">J</div>
+                                    <div class="activity-content">
+                                        <div class="activity-text">Jordan: Weekly performance report generated</div>
+                                        <div class="activity-time">6 hrs ago</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Market Pulse -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">Market Pulse</h3>
+                                    <span class="card-action">GTA</span>
+                                </div>
+                                <div class="market-item">
+                                    <span class="market-label">Avg Price</span>
+                                    <span class="market-value">$1,127,000 <span class="market-change up">(↑ 2.3%)</span></span>
+                                </div>
+                                <div class="market-item">
+                                    <span class="market-label">Active Inventory</span>
+                                    <span class="market-value">12,847 <span class="market-change down">(↓ 5.1%)</span></span>
+                                </div>
+                                <div class="market-item">
+                                    <span class="market-label">Avg DOM</span>
+                                    <span class="market-value">22 days</span>
+                                </div>
+                                <div class="market-item">
+                                    <span class="market-label">Sale-to-List</span>
+                                    <span class="market-value">101.2% <span class="market-change up">(↑ 0.8%)</span></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PIPELINE PAGE -->
+                <div class="page" id="pipeline">
+                    <div class="pipeline-board">
+                        <!-- New Lead -->
+                        <div class="pipeline-column">
+                            <div class="pipeline-header">
+                                <span class="pipeline-title">New Lead</span>
+                                <span class="pipeline-count">3</span>
+                            </div>
+                            <div class="pipeline-card buyer">
+                                <div class="pipeline-agent" style="background: var(--yellow); color: white;">L</div>
+                                <div class="pipeline-client">Michael Rodriguez</div>
+                                <div class="pipeline-address">Buyer — searching Etobicoke</div>
+                                <div class="pipeline-meta">
+                                    <span class="pipeline-price">$850K - $950K</span>
+                                    <span class="pipeline-days">2 days</span>
+                                </div>
+                            </div>
+                            <div class="pipeline-card seller">
+                                <div class="pipeline-agent" style="background: var(--green); color: white;">S</div>
+                                <div class="pipeline-client">Patricia Wong</div>
+                                <div class="pipeline-address">2145 Danforth Ave</div>
+                                <div class="pipeline-meta">
+                                    <span class="pipeline-price">$1.1M</span>
+                                    <span class="pipeline-days">1 day</span>
+                                </div>
+                            </div>
+                            <div class="pipeline-card buyer">
+                                <div class="pipeline-agent" style="background: var(--yellow); color: white;">L</div>
+                                <div class="pipeline-client">David Kim</div>
+                                <div class="pipeline-address">Buyer — searching downtown</div>
+                                <div class="pipeline-meta">
+                                    <span class="pipeline-price">$700K - $800K</span>
+                                    <span class="pipeline-days">4 days</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Qualified -->
+                        <div class="pipeline-column">
+                            <div class="pipeline-header">
+                                <span class="pipeline-title">Qualified</span>
+                                <span class="pipeline-count">4</span>
+                            </div>
+                            <div class="pipeline-card buyer">
+                                <div class="pipeline-agent" style="background: var(--green); color: white;">J</div>
+                                <div class="pipeline-client">Sarah Chen</div>
+                                <div class="pipeline-address">Buyer — Beach area</div>
+                                <div class="pipeline-meta">
+                                    <span class="pipeline-price">$1.2M</span>
+                                    <span class="pipeline-days">3 days</span>
+                                </div>
+                            </div>
+                            <div class="pipeline-card seller">
+                                <div class="pipeline-agent" style="background: var(--green); color: white;">S</div>
+                                <div class="pipeline-client">Mark Thompson</div>
+                                <div class="pipeline-address">45 Oak Ave</div>
+                                <div class="pipeline-meta">
+                                    <span class="pipeline-price">$875K</span>
+                                    <span class="pipeline-days">6 days</span>
+                                </div>
+                            </div>
+                            <div class="pipeline-card buyer">
+                                <div class="pipeline-agent" style="background: var(--green); color: white;">J</div>
+                                <div class="pipeline-client">Jennifer Hassan</div>
+                                <div class="pipeline-address">Buyer — North York</div>
+                                <div class="pipeline-meta">
+                                    <span class="pipeline-price">$950K</span>
+                                    <span class="pipeline-days">8 days</span>
+                                </div>
+                            </div>
+                            <div class="pipeline-card seller">
+                                <div class="pipeline-agent" style="background: var(--green); color: white;">S</div>
+                                <div class="pipeline-client">Roberto Silva</div>
+                                <div class="pipeline-address">789 Queen St</div>
+                                <div class="pipeline-meta">
+                                    <span class="pipeline-price">$1.35M</span>
+                                    <span class="pipeline-days">5 days</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Showing -->
+                        <div class="pipeline-column">
+                            <div class="pipeline-header">
+                                <span class="pipeline-title">Showing</span>
+                                <span class="pipeline-count">2</span>
+                            </div>
+                            <div class="pipeline-card buyer">
+                                <div class="pipeline-agent" style="background: var(--green); color: white;">J</div>
+                                <div class="pipeline-client">Jennifer Chen</div>
+                                <div class="pipeline-address">123 Maple St viewing</div>
+                                <div class="pipeline-meta">
+                                    <span class="pipeline-price">$825K</span>
+                                    <span class="pipeline-days">12 days</span>
+                                </div>
+                            </div>
+                            <div class="pipeline-card buyer">
+                                <div class="pipeline-agent" style="background: var(--green); color: white;">J</div>
+                                <div class="pipeline-client">Ahmed Osman</div>
+                                <div class="pipeline-address">Multiple showings booked</div>
+                                <div class="pipeline-meta">
+                                    <span class="pipeline-price">$1.1M</span>
+                                    <span class="pipeline-days">18 days</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Offer -->
+                        <div class="pipeline-column">
+                            <div class="pipeline-header">
+                                <span class="pipeline-title">Offer</span>
+                                <span class="pipeline-count">1</span>
+                            </div>
+                            <div class="pipeline-card buyer">
+                                <div class="pipeline-agent" style="background: var(--blue); color: white;">M</div>
+                                <div class="pipeline-client">Lisa Park</div>
+                                <div class="pipeline-address">67 College St</div>
+                                <div class="pipeline-meta">
+                                    <span class="pipeline-price">$695K offer</span>
+                                    <span class="pipeline-days">24 days</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Conditional -->
+                        <div class="pipeline-column">
+                            <div class="pipeline-header">
+                                <span class="pipeline-title">Conditional</span>
+                                <span class="pipeline-count">2</span>
+                            </div>
+                            <div class="pipeline-card buyer">
+                                <div class="pipeline-agent" style="background: var(--blue); color: white;">M</div>
+                                <div class="pipeline-client">Tony & Maria Rossi</div>
+                                <div class="pipeline-address">55 Elm St</div>
+                                <div class="pipeline-meta">
+                                    <span class="pipeline-price">$1.05M</span>
+                                    <span class="pipeline-days">31 days</span>
+                                </div>
+                            </div>
+                            <div class="pipeline-card seller">
+                                <div class="pipeline-agent" style="background: var(--blue); color: white;">M</div>
+                                <div class="pipeline-client">Helen Zhao</div>
+                                <div class="pipeline-address">234 Harbord St</div>
+                                <div class="pipeline-meta">
+                                    <span class="pipeline-price">$920K</span>
+                                    <span class="pipeline-days">28 days</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Firm -->
+                        <div class="pipeline-column">
+                            <div class="pipeline-header">
+                                <span class="pipeline-title">Firm</span>
+                                <span class="pipeline-count">1</span>
+                            </div>
+                            <div class="pipeline-card seller">
+                                <div class="pipeline-agent" style="background: var(--blue); color: white;">M</div>
+                                <div class="pipeline-client">Frank & Janet Smith</div>
+                                <div class="pipeline-address">98 Broadview Ave</div>
+                                <div class="pipeline-meta">
+                                    <span class="pipeline-price">$1.15M</span>
+                                    <span class="pipeline-days">45 days</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TEAM PAGE -->
+                <div class="page" id="team">
+                    <div class="team-grid">
+                        <!-- Stella Card (Featured) -->
+                        <div class="team-card stella">
+                            <div class="team-status active">Team Lead</div>
+                            <div class="team-header">
+                                <div class="team-avatar stella">S</div>
+                                <div class="team-info">
+                                    <div class="team-name">Stella</div>
+                                    <div class="team-role">Executive Assistant & Team Lead</div>
+                                </div>
+                            </div>
+                            <div class="team-last-action">Orchestrated team response to 3 new inquiries this morning. Managing your priorities across 7 active deals.</div>
+                            <div class="team-tasks">Today: 24 tasks completed • Response time: 12s avg</div>
+                        </div>
+
+                        <!-- Team Members -->
+                        <div class="team-card">
+                            <div class="team-status active">Active</div>
+                            <div class="team-header">
+                                <div class="team-avatar sarah">S</div>
+                                <div class="team-info">
+                                    <div class="team-name">Sarah</div>
+                                    <div class="team-role">Listing Specialist</div>
+                                </div>
+                            </div>
+                            <div class="team-last-action">Updated CMA for 45 Oak Ave presentation</div>
+                            <div class="team-tasks">Today: 8 tasks completed • 3 listings optimized</div>
+                        </div>
+
+                        <div class="team-card">
+                            <div class="team-status active">Active</div>
+                            <div class="team-header">
+                                <div class="team-avatar marcus">M</div>
+                                <div class="team-info">
+                                    <div class="team-name">Marcus</div>
+                                    <div class="team-role">Transaction Coordinator</div>
+                                </div>
+                            </div>
+                            <div class="team-last-action">Sent financing condition reminder for 55 Elm St</div>
+                            <div class="team-tasks">Today: 12 tasks completed • 0 missed deadlines</div>
+                        </div>
+
+                        <div class="team-card">
+                            <div class="team-status active">Active</div>
+                            <div class="team-header">
+                                <div class="team-avatar maya">M</div>
+                                <div class="team-info">
+                                    <div class="team-name">Maya</div>
+                                    <div class="team-role">Marketing Manager</div>
+                                </div>
+                            </div>
+                            <div class="team-last-action">Scheduled 3 Instagram posts, awaiting approval</div>
+                            <div class="team-tasks">Today: 6 tasks completed • 4 posts created</div>
+                        </div>
+
+                        <div class="team-card">
+                            <div class="team-status active">Active</div>
+                            <div class="team-header">
+                                <div class="team-avatar leo">L</div>
+                                <div class="team-info">
+                                    <div class="team-name">Leo</div>
+                                    <div class="team-role">Lead Specialist</div>
+                                </div>
+                            </div>
+                            <div class="team-last-action">Responded to inquiry in 38 seconds, scored lead 94/100</div>
+                            <div class="team-tasks">Today: 15 tasks completed • 3 leads captured</div>
+                        </div>
+
+                        <div class="team-card">
+                            <div class="team-status attention">Attention</div>
+                            <div class="team-header">
+                                <div class="team-avatar" style="background: var(--purple); color: white;">R</div>
+                                <div class="team-info">
+                                    <div class="team-name">Riley</div>
+                                    <div class="team-role">Market Analyst</div>
+                                </div>
+                            </div>
+                            <div class="team-last-action">Weekly market report ready for your review</div>
+                            <div class="team-tasks">Today: 4 tasks completed • 1 report pending</div>
+                        </div>
+
+                        <div class="team-card">
+                            <div class="team-status active">Active</div>
+                            <div class="team-header">
+                                <div class="team-avatar" style="background: #C4651A; color: white;">J</div>
+                                <div class="team-info">
+                                    <div class="team-name">James</div>
+                                    <div class="team-role">Client Relations</div>
+                                </div>
+                            </div>
+                            <div class="team-last-action">Confirmed 3 showings for tomorrow</div>
+                            <div class="team-tasks">Today: 9 tasks completed • 8 appointments managed</div>
+                        </div>
+
+                        <div class="team-card">
+                            <div class="team-status active">Active</div>
+                            <div class="team-header">
+                                <div class="team-avatar" style="background: #0EA5E9; color: white;">A</div>
+                                <div class="team-info">
+                                    <div class="team-name">Alex</div>
+                                    <div class="team-role">Content Creator</div>
+                                </div>
+                            </div>
+                            <div class="team-last-action">Drafted video script for 123 Maple St tour</div>
+                            <div class="team-tasks">Today: 5 tasks completed • 2 scripts created</div>
+                        </div>
+
+                        <div class="team-card">
+                            <div class="team-status active">Active</div>
+                            <div class="team-header">
+                                <div class="team-avatar" style="background: #4B5563; color: white;">J</div>
+                                <div class="team-info">
+                                    <div class="team-name">Jordan</div>
+                                    <div class="team-role">Business Intelligence</div>
+                                </div>
+                            </div>
+                            <div class="team-last-action">Generated weekly performance report</div>
+                            <div class="team-tasks">Today: 7 tasks completed • GCI tracking updated</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- OTHER PAGES (Placeholders) -->
+                <div class="page" id="contacts">
+                    <div class="coming-soon">
+                        <h2>Contacts</h2>
+                        <p>Your comprehensive client and lead database. Track every interaction, note, and touchpoint in one place.</p>
+                    </div>
+                </div>
+
+                <div class="page" id="listings">
+                    <div class="coming-soon">
+                        <h2>Listings</h2>
+                        <p>Manage all your active and past listings. MLS integration, automated descriptions, and performance tracking.</p>
+                    </div>
+                </div>
+
+                <div class="page" id="calendar">
+                    <div class="coming-soon">
+                        <h2>Calendar</h2>
+                        <p>Your unified calendar for showings, appointments, deadlines, and follow-ups. Syncs with your existing calendar.</p>
+                    </div>
+                </div>
+
+                <div class="page" id="marketing">
+                    <div class="coming-soon">
+                        <h2>Marketing</h2>
+                        <p>Content calendar, social media management, newsletters, and marketing campaigns — all automated by Maya.</p>
+                    </div>
+                </div>
+
+                <div class="page" id="analytics">
+                    <div class="coming-soon">
+                        <h2>Analytics</h2>
+                        <p>Business intelligence and performance tracking. GCI analysis, pipeline health, and market insights.</p>
+                    </div>
+                </div>
+
+                <div class="page" id="settings">
+                    <div class="coming-soon">
+                        <h2>Settings</h2>
+                        <p>Configure your team preferences, integrations, notifications, and account settings.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Chat Widget -->
+    <div class="chat-widget">
+        <div class="chat-panel" id="chatPanel">
+            <div class="chat-panel-header">
+                <div class="chat-panel-title">Ask Stella</div>
+                <div class="chat-panel-subtitle">Your AI Executive Assistant</div>
+            </div>
+            <div class="chat-panel-body">
+                <input type="text" class="chat-input" placeholder="Ask Stella anything...">
+                <div class="chat-quick-actions">
+                    <button class="chat-quick-action">📋 Morning briefing</button>
+                    <button class="chat-quick-action">🏡 Check pipeline</button>
+                    <button class="chat-quick-action">➕ New listing</button>
+                </div>
+            </div>
+        </div>
+        <button class="chat-button" id="chatButton">
+            <span>S</span>
+        </button>
+    </div>
+
+    <script>
+        // Navigation
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                // Remove active class from all nav items and pages
+                document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+                
+                // Add active class to clicked nav item
+                item.classList.add('active');
+                
+                // Show corresponding page
+                const pageId = item.getAttribute('data-page');
+                document.getElementById(pageId).classList.add('active');
+            });
+        });
+
+        // Mobile sidebar toggle
+        const hamburger = document.getElementById('hamburger');
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('mainContent');
+
+        hamburger.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+        });
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth <= 768 && 
+                !sidebar.contains(e.target) && 
+                !hamburger.contains(e.target)) {
+                sidebar.classList.remove('open');
+            }
+        });
+
+        // Chat widget
+        const chatButton = document.getElementById('chatButton');
+        const chatPanel = document.getElementById('chatPanel');
+
+        chatButton.addEventListener('click', () => {
+            chatPanel.classList.toggle('open');
+        });
+
+        // Close chat when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!chatButton.contains(e.target) && !chatPanel.contains(e.target)) {
+                chatPanel.classList.remove('open');
+            }
+        });
+
+        // Approval buttons
+        document.querySelectorAll('.approval-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const originalText = btn.textContent;
+                btn.style.opacity = '0.6';
+                btn.textContent = btn.classList.contains('primary') ? 'Done ✓' : 'Clicked ✓';
+                
+                setTimeout(() => {
+                    btn.style.opacity = '1';
+                    btn.textContent = originalText;
+                }, 2000);
+            });
+        });
+
+        // Quick actions in chat
+        document.querySelectorAll('.chat-quick-action').forEach(action => {
+            action.addEventListener('click', () => {
+                const input = document.querySelector('.chat-input');
+                input.value = action.textContent.replace(/^[\s\uFEFF\xA0\u{1F4CB}\u{1F3E1}\u{2795}]/u, '').trim();
+                input.focus();
+            });
+        });
+
+        // Team card interactions
+        document.querySelectorAll('.team-card:not(.stella)').forEach(card => {
+            card.addEventListener('click', () => {
+                card.style.transform = card.style.transform === 'scale(1.02)' ? '' : 'scale(1.02)';
+            });
+        });
+
+        // Responsive handling
+        function handleResize() {
+            if (window.innerWidth > 768) {
+                sidebar.classList.remove('open');
+                mainContent.classList.remove('expanded');
+            }
+        }
+
+        window.addEventListener('resize', handleResize);
+        handleResize(); // Initial call
+    </script>
+</body>
+</html>
