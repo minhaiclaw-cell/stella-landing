@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stella — Join the Waitlist</title>
+    <meta name="description" content="Hire your AI real estate team. One subscription, nine specialists, 24/7.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script async src="https://js.stripe.com/v3/"></script>
+    <style>
+        :root {
+            --bg: #FFFFFF;
+            --bg-warm: #FAFAF8;
+            --bg-subtle: #F5F5F3;
+            --text: #1A1A1A;
+            --text-secondary: #555555;
+            --text-tertiary: #999999;
+            --border: #E8E8E6;
+            --accent: #D4594E;
+            --accent-hover: #C04238;
+            --accent-light: #FDF1F0;
+            --green: #2D8F6F;
+            --green-light: #E8F5F0;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
+            --shadow-md: 0 4px 16px rgba(0,0,0,0.06);
+            --shadow-lg: 0 12px 40px rgba(0,0,0,0.08);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-warm);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        nav {
+            position: fixed; top: 0; width: 100%; z-index: 100;
+            padding: 14px 0;
+            background: rgba(255,255,255,0.92);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border-light);
+        }
+        .nav-inner {
+            max-width: 1140px; margin: 0 auto; padding: 0 24px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .logo {
+            font-size: 19px; font-weight: 800; color: var(--text);
+            text-decoration: none; display: flex; align-items: center; gap: 8px;
+        }
+        .logo-mark {
+            width: 26px; height: 26px; background: var(--accent); border-radius: 7px;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 13px; font-weight: 800;
+        }
+        .checkout-container {
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 140px 24px 60px;
+        }
+        .checkout-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .checkout-header h1 {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+        .checkout-header p {
+            color: var(--text-secondary);
+            font-size: 15px;
+        }
+        .plan-card {
+            background: var(--bg);
+            border: 2px solid var(--accent);
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-md);
+        }
+        .plan-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: var(--accent-light);
+            color: var(--accent);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-radius: 20px;
+            margin-bottom: 12px;
+        }
+        .plan-name {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .plan-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+        .plan-price {
+            font-size: 42px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+        }
+        .plan-price span {
+            font-size: 15px;
+            font-weight: 400;
+            color: var(--text-secondary);
+        }
+        .plan-savings {
+            font-size: 13px;
+            color: var(--green);
+            font-weight: 600;
+            margin-top: 4px;
+        }
+        .features {
+            list-style: none;
+            margin: 24px 0;
+        }
+        .features li {
+            padding: 8px 0;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .features li::before {
+            content: '✓';
+            color: var(--green);
+            font-weight: 700;
+            width: 20px;
+            height: 20px;
+            background: var(--green-light);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+        }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 15px;
+            font-family: inherit;
+            background: var(--bg);
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        .card-element {
+            padding: 12px 16px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg);
+        }
+        .btn {
+            width: 100%;
+            padding: 16px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.15s;
+            margin-top: 8px;
+        }
+        .btn:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+        }
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .secure-note {
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-tertiary);
+            margin-top: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .error-message {
+            color: var(--accent);
+            font-size: 13px;
+            margin-top: 8px;
+            display: none;
+        }
+        .success-message {
+            text-align: center;
+            padding: 40px;
+        }
+        .success-message h2 {
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 12px;
+        }
+        .success-message p {
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+        .next-steps {
+            background: var(--bg-warm);
+            border-radius: 12px;
+            padding: 24px;
+            text-align: left;
+        }
+        .next-steps h3 {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+        .next-steps ol {
+            font-size: 14px;
+            color: var(--text-secondary);
+            padding-left: 20px;
+        }
+        .next-steps li {
+            margin-bottom: 8px;
+        }
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            background: var(--bg-subtle);
+            padding: 4px;
+            border-radius: 10px;
+        }
+        .tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+        }
+        .tab.active {
+            background: var(--bg);
+            color: var(--text);
+            box-shadow: var(--shadow-sm);
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-inner">
+            <a href="/" class="logo">
+                <span class="logo-mark">S</span> Stella
+            </a>
+        </div>
+    </nav>
+
+    <div class="checkout-container">
+        <div class="checkout-header">
+            <h1>Join the waitlist</h1>
+            <p>Be the first to hire your AI real estate team</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('monthly')">Monthly</button>
+            <button class="tab" onclick="switchTab('yearly')">Yearly <span style="color: var(--green);">(Save 20%)</span></button>
+        </div>
+
+        <div class="plan-card">
+            <span class="plan-badge">Early Access</span>
+            <div class="plan-name">Solo Agent</div>
+            <div class="plan-desc">Everything you need to run your business</div>
+            <div class="plan-price" id="price">$299<span>/month</span></div>
+            <div class="plan-savings" id="savings">Save $96K+ vs hiring a team</div>
+            
+            <ul class="features">
+                <li>All 9 AI specialists (Stella + team)</li>
+                <li>Unlimited listings & transactions</li>
+                <li>24/7 lead response</li>
+                <li>MLS description generation</li>
+                <li>Social media & email marketing</li>
+                <li>Transaction deadline tracking</li>
+                <li>Market reports & analytics</li>
+                <li>Telegram, WhatsApp & SMS access</li>
+            </ul>
+        </div>
+
+        <form id="waitlist-form">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" placeholder="you@example.com" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="name">Full Name</label>
+                <input type="text" id="name" name="name" placeholder="Jane Smith" required>
+            </div>
+
+            <div class="form-group">
+                <label for="brokerage">Brokerage (optional)</label>
+                <input type="text" id="brokerage" name="brokerage" placeholder="e.g., Royal LePage">
+            </div>
+
+            <button type="submit" class="btn" id="submit-btn">Join Waitlist — $0 Today</button>
+            <div class="error-message" id="error-message"></div>
+        </form>
+
+        <div class="secure-note">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+            Secure. No charge until we launch.
+        </div>
+    </div>
+
+    <script>
+        let currentPlan = 'monthly';
+        const prices = {
+            monthly: { price: '$299', per: '/month', savings: 'Save $96K+ vs hiring a team' },
+            yearly: { price: '$2,870', per: '/year', savings: 'Save $718 (2 months free)' }
+        };
+
+        function switchTab(plan) {
+            currentPlan = plan;
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            const p = prices[plan];
+            document.getElementById('price').innerHTML = `${p.price}<span>${p.per}</span>`;
+            document.getElementById('savings').textContent = p.savings;
+        }
+
+        document.getElementById('waitlist-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submit-btn');
+            const error = document.getElementById('error-message');
+            
+            btn.disabled = true;
+            btn.textContent = 'Joining...';
+            error.style.display = 'none';
+
+            const email = document.getElementById('email').value;
+            const name = document.getElementById('name').value;
+            const brokerage = document.getElementById('brokerage').value;
+
+            try {
+                // Submit to FormSubmit for now (replace with Stripe later)
+                const res = await fetch('https://formsubmit.co/ajax/4ec4fd3d462e6640748dfa082c6f1216', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                    body: JSON.stringify({
+                        email: email,
+                        name: name,
+                        brokerage: brokerage,
+                        plan: currentPlan,
+                        _subject: 'New Stella Waitlist Signup (with plan selection)!',
+                        _template: 'table'
+                    })
+                });
+
+                if (res.ok) {
+                    // Show success
+                    document.querySelector('.checkout-container').innerHTML = `
+                        <div class="success-message">
+                            <div style="font-size: 56px; margin-bottom: 16px;">🎉</div>
+                            <h2>You're on the list!</h2>
+                            <p>Welcome to the future of real estate. We'll be in touch soon with early access details.</p>
+                            <div class="next-steps">
+                                <h3>What happens next:</h3>
+                                <ol>
+                                    <li>Check your email for confirmation</li>
+                                    <li>We'll reach out when early access opens</li>
+                                    <li>You'll be among the first to meet your AI team</li>
+                                </ol>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    throw new Error('Submit failed');
+                }
+            } catch (err) {
+                btn.disabled = false;
+                btn.textContent = 'Join Waitlist — $0 Today';
+                error.textContent = 'Something went wrong. Please try again.';
+                error.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>
