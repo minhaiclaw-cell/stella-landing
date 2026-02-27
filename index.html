@@ -912,7 +912,7 @@
       </div>
 
       <!-- Chat Widget -->
-      <div class="max-w-[440px] mx-auto fade-in-section">
+      <div class="max-w-[480px] mx-auto fade-in-section">
         <div id="chat-widget" class="rounded-2xl overflow-hidden border border-white/10 shadow-2xl" style="background:rgba(0,0,0,0.4);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);">
           <!-- Chat Header -->
           <div class="flex items-center gap-3 px-5 py-4 border-b border-white/10">
@@ -926,7 +926,7 @@
             </div>
           </div>
           <!-- Messages Area -->
-          <div id="chat-messages" class="px-5 py-5 space-y-4 min-h-[340px] max-h-[480px] overflow-y-auto">
+          <div id="chat-messages" class="px-5 py-5 space-y-4 min-h-[400px] max-h-[580px] overflow-y-auto">
           </div>
         </div>
         <!-- Replay Button -->
@@ -949,15 +949,104 @@
       @keyframes bounce-dot{0%,100%{transform:translateY(0);}50%{transform:translateY(-5px);}}
       .chat-bullet::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:hsl(12,76%,61%);margin-right:8px;flex-shrink:0;}
       .chat-bullet{display:flex;align-items:baseline;}
+      .proof-cards{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
+      .proof-card{opacity:0;transform:translateY(6px) scale(0.97);transition:all .4s ease;border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.04);flex:1;min-width:140px;}
+      .proof-card.visible{opacity:1;transform:translateY(0) scale(1);}
+      .proof-card-header{display:flex;align-items:center;gap:6px;padding:8px 10px;border-bottom:1px solid rgba(255,255,255,0.06);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:rgba(255,255,255,0.4);}
+      .proof-card-header svg{width:12px;height:12px;opacity:0.5;}
+      .proof-card-body{padding:10px;}
+      .proof-tag{display:inline-block;padding:2px 6px;border-radius:4px;font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;}
     </style>
 
     <script>
     (function(){
+      /* ── Proof card HTML fragments ── */
+      const proofCards1 = `
+        <div class="proof-cards">
+          <div class="proof-card" style="min-width:180px;">
+            <div class="proof-card-header">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              Property Brochure
+            </div>
+            <div class="proof-card-body">
+              <div style="background:linear-gradient(135deg,hsl(12,40%,20%),hsl(12,30%,15%));border-radius:6px;padding:10px;margin-bottom:6px;">
+                <div style="font-size:11px;font-weight:700;color:white;letter-spacing:-0.01em;">42 Maple Ave</div>
+                <div style="font-size:10px;color:rgba(255,255,255,0.5);margin-top:2px;">Leslieville · 3 BR · 2 BA · 1,450 sqft</div>
+                <div style="font-size:14px;font-weight:700;color:hsl(12,76%,61%);margin-top:6px;">$1,100,000</div>
+              </div>
+              <div style="display:flex;gap:4px;">
+                <div style="flex:1;height:3px;border-radius:2px;background:hsl(12,76%,61%);"></div>
+                <div style="flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,0.1);"></div>
+                <div style="flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,0.1);"></div>
+              </div>
+              <div style="font-size:9px;color:rgba(255,255,255,0.3);margin-top:4px;">Page 1 of 3</div>
+            </div>
+          </div>
+          <div class="proof-card" style="min-width:150px;">
+            <div class="proof-card-header">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/><line x1="2" y1="10" x2="22" y2="10"/><line x1="10" y1="2" x2="10" y2="10"/></svg>
+              Social Post
+            </div>
+            <div class="proof-card-body">
+              <div style="background:rgba(255,255,255,0.03);border-radius:6px;padding:8px;">
+                <div style="display:flex;align-items:center;gap:5px;margin-bottom:6px;">
+                  <div style="width:16px;height:16px;border-radius:50%;background:hsl(12,76%,61%);display:flex;align-items:center;justify-content:center;font-size:8px;color:white;font-weight:700;">S</div>
+                  <span style="font-size:10px;font-weight:600;color:white;">stella_realty</span>
+                </div>
+                <div style="font-size:10px;color:rgba(255,255,255,0.6);line-height:1.4;">✨ Just listed! Stunning 3BR semi in the heart of Leslieville. $1.1M. DM for details!</div>
+                <div style="display:flex;gap:8px;margin-top:6px;">
+                  <span style="font-size:9px;color:rgba(255,255,255,0.3);">♥ 0</span>
+                  <span style="font-size:9px;color:rgba(255,255,255,0.3);">💬 0</span>
+                  <span style="font-size:9px;color:rgba(255,255,255,0.3);">↗ 0</span>
+                </div>
+              </div>
+              <span class="proof-tag" style="background:rgba(59,130,246,0.15);color:rgba(96,165,250,0.9);margin-top:6px;">Ready to post</span>
+            </div>
+          </div>
+        </div>`;
+
+      const proofCards2 = `
+        <div class="proof-cards">
+          <div class="proof-card" style="min-width:180px;">
+            <div class="proof-card-header">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              Email Sent
+            </div>
+            <div class="proof-card-body">
+              <div style="font-size:10px;color:rgba(255,255,255,0.35);margin-bottom:2px;">To: j.morrison@lawfirm.com</div>
+              <div style="font-size:11px;font-weight:600;color:white;margin-bottom:4px;">Re: Condition Follow-up — 88 Queen St</div>
+              <div style="font-size:10px;color:rgba(255,255,255,0.5);line-height:1.4;">Hi Jennifer, I'm writing on behalf of my client regarding the conditions on 88 Queen St. The deadline is approaching on…</div>
+              <div style="display:flex;align-items:center;gap:4px;margin-top:6px;">
+                <span class="proof-tag" style="background:rgba(34,197,94,0.15);color:rgba(74,222,128,0.9);">Delivered</span>
+                <span style="font-size:9px;color:rgba(255,255,255,0.25);">Just now</span>
+              </div>
+            </div>
+          </div>
+          <div class="proof-card" style="min-width:140px;">
+            <div class="proof-card-header">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              Reminder Set
+            </div>
+            <div class="proof-card-body">
+              <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+                <div style="width:28px;height:28px;border-radius:6px;background:rgba(251,191,36,0.12);display:flex;align-items:center;justify-content:center;">
+                  <svg style="width:14px;height:14px;color:rgba(251,191,36,0.8);" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                </div>
+                <div>
+                  <div style="font-size:11px;font-weight:600;color:white;">Call inspector</div>
+                  <div style="font-size:10px;color:rgba(255,255,255,0.4);">Tomorrow · 10:00 AM</div>
+                </div>
+              </div>
+              <span class="proof-tag" style="background:rgba(251,191,36,0.12);color:rgba(251,191,36,0.8);">Scheduled</span>
+            </div>
+          </div>
+        </div>`;
+
       const script = [
         {role:'user', text:"Hey Stella, I just listed 42 Maple Ave in Leslieville. 3BR semi, $1.1M. Can you handle the marketing?"},
-        {role:'stella', html:'On it. Here\'s what I\'m doing:<div class="mt-2 space-y-1.5 text-[13px]"><div class="chat-bullet">MLS description drafted</div><div class="chat-bullet">Social post created for Instagram &amp; Facebook</div><div class="chat-bullet">Property brochure generating</div><div class="chat-bullet">Email blast queued for your buyer list</div></div><div class="mt-3">I also noticed conditions expire on your 88 Queen deal in 3 days. Want me to follow up with the buyer\'s lawyer?</div>'},
+        {role:'stella', html:'On it. Here\'s what I\'m doing:<div class="mt-2 space-y-1.5 text-[13px]"><div class="chat-bullet">MLS description drafted</div><div class="chat-bullet">Social post created for Instagram &amp; Facebook</div><div class="chat-bullet">Property brochure generating</div><div class="chat-bullet">Email blast queued for your buyer list</div></div><div class="mt-3">I also noticed conditions expire on your 88 Queen deal in 3 days. Want me to follow up with the buyer\'s lawyer?</div>', proof: proofCards1},
         {role:'user', text:"Yes please. And remind me to call the inspector tomorrow at 10."},
-        {role:'stella', html:'Done ✓<div class="mt-2 space-y-1.5 text-[13px]"><div class="chat-bullet">Follow-up email sent to buyer\'s lawyer</div><div class="chat-bullet">Reminder set: Call inspector tomorrow 10:00 AM</div></div><div class="mt-3">Your 42 Maple brochure is ready — want me to send it to the sellers?</div>'}
+        {role:'stella', html:'Done ✓<div class="mt-2 space-y-1.5 text-[13px]"><div class="chat-bullet">Follow-up email sent to buyer\'s lawyer</div><div class="chat-bullet">Reminder set: Call inspector tomorrow 10:00 AM</div></div><div class="mt-3">Your 42 Maple brochure is ready — want me to send it to the sellers?</div>', proof: proofCards2}
       ];
 
       const container = document.getElementById('chat-messages');
@@ -1002,6 +1091,23 @@
         }
       }
 
+      async function showProofCards(proofHtml, signal){
+        const wrap = document.createElement('div');
+        wrap.className = 'msg-bubble flex justify-start';
+        wrap.style.maxWidth = '92%';
+        wrap.innerHTML = proofHtml;
+        container.appendChild(wrap);
+        requestAnimationFrame(()=>wrap.classList.add('visible'));
+        // Stagger reveal each proof card
+        const cards = wrap.querySelectorAll('.proof-card');
+        for(let i=0;i<cards.length;i++){
+          if(signal&&signal.aborted) return;
+          await sleep(300, signal);
+          cards[i].classList.add('visible');
+          container.scrollTop = container.scrollHeight;
+        }
+      }
+
       async function play(signal){
         container.innerHTML = '';
         for(const msg of script){
@@ -1021,6 +1127,12 @@
             bubble.innerHTML = msg.html;
             container.appendChild(wrap);
             requestAnimationFrame(()=>wrap.classList.add('visible'));
+            // Show proof cards after Stella's response
+            if(msg.proof){
+              container.scrollTop = container.scrollHeight;
+              await sleep(600, signal);
+              await showProofCards(msg.proof, signal);
+            }
           }
           container.scrollTop = container.scrollHeight;
           await sleep(800, signal);
