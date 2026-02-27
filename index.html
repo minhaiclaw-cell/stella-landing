@@ -621,7 +621,7 @@
             <div>
                 <div class="eyebrow">This isn't what you think</div>
                 <h2 class="sec-title">Not a chatbot.<br>Not a tool.<br>A <mark class="accent">full team.</mark></h2>
-                <p class="sec-sub" style="margin-top: 16px;">Most "AI assistants" answer questions. Stella <strong>takes action</strong>. She manages your calendar, writes your listing descriptions, follows up with your leads, posts your content, and tracks every deadline — without you having to ask.</p>
+                <p class="sec-sub" style="margin-top: 16px;">Most "AI assistants" answer questions. Stella <strong>takes action</strong>. Manage your calendar, write listing descriptions, follow up with leads, post content, and track every deadline — all without lifting a finger.</p>
                 <p class="sec-sub" style="margin-top: 12px;">Think of it as hiring <mark>an entire support staff</mark> — admin, TC, marketing manager, ISA — that works around the clock for a fraction of the cost.</p>
             </div>
             <div class="edu-comparison">
@@ -1007,7 +1007,7 @@
             <div class="step-item">
                 <div class="step-num">3</div>
                 <h3>Delegate</h3>
-                <p>Text Stella on Telegram or WhatsApp. She handles the rest.</p>
+                <p>Text Stella on Telegram or WhatsApp. Stella handles the rest.</p>
             </div>
             <div class="step-item">
                 <div class="step-num">4</div>
@@ -1025,7 +1025,7 @@
             <div class="demo-text">
                 <div class="eyebrow">Talk to your team</div>
                 <h2 class="sec-title">Just text. They handle everything.</h2>
-                <p class="sec-sub">No apps to learn. No dashboards to check. Message Stella like you'd text a team member.</p>
+                <p class="sec-sub">Text Stella anytime — Stella handles it. Or dive into Mission Control when you want the full picture. Your team, your way.</p>
                 <ul class="checklist">
                     <li><span class="check">✓</span> Telegram, WhatsApp, or SMS</li>
                     <li><span class="check">✓</span> Understands Canadian real estate</li>
@@ -1047,6 +1047,67 @@
                 </div>
             </div>
         </div>
+    </div>
+</section>
+
+<!-- PRICING (hidden until launch — add ?pricing to URL to preview) -->
+<section class="pricing-section" id="pricing" style="display:none;padding:100px 24px;">
+    <div class="container" style="text-align:center;">
+        <div class="eyebrow">Pricing</div>
+        <h2 style="font-size:clamp(26px,3.5vw,38px);font-weight:800;letter-spacing:-0.02em;margin-bottom:8px;">One team. Three plans.</h2>
+        <p style="font-size:16px;color:var(--text-secondary);max-width:500px;margin:0 auto 48px;">All plans include 9 AI agents, your own dashboard, and Canadian real estate intelligence. Pick your pace.</p>
+        
+        <div class="pricing-grid">
+            <!-- Starter -->
+            <div class="price-card">
+                <div class="price-tier">Starter</div>
+                <div class="price-amount">$149<span>/mo CAD</span></div>
+                <p class="price-desc">For solo agents getting started</p>
+                <ul class="price-features">
+                    <li>3 active agents</li>
+                    <li>5,000 credits/month</li>
+                    <li>Dashboard + CRM</li>
+                    <li>Google Calendar sync</li>
+                    <li>Email support</li>
+                </ul>
+                <button class="btn btn-primary" style="width:100%;padding:12px;" onclick="startCheckout('starter')">Get Started</button>
+            </div>
+            
+            <!-- Professional -->
+            <div class="price-card pop">
+                <div class="price-tier" style="color:var(--accent);">Professional · Most Popular</div>
+                <div class="price-amount">$349<span>/mo CAD</span></div>
+                <p class="price-desc">For growing teams and top producers</p>
+                <ul class="price-features">
+                    <li>6 active agents</li>
+                    <li>15,000 credits/month</li>
+                    <li>Everything in Starter</li>
+                    <li>CRM integrations (FUB, Sierra)</li>
+                    <li>Approval workflows</li>
+                    <li>Priority support</li>
+                </ul>
+                <button class="btn btn-primary" style="width:100%;padding:12px;" onclick="startCheckout('professional')">Get Started</button>
+            </div>
+            
+            <!-- Team -->
+            <div class="price-card">
+                <div class="price-tier">Team</div>
+                <div class="price-amount">$749<span>/mo CAD</span></div>
+                <p class="price-desc">For brokerages and power teams</p>
+                <ul class="price-features">
+                    <li>All 9 agents</li>
+                    <li>50,000 credits/month</li>
+                    <li>Everything in Professional</li>
+                    <li>Custom agent training</li>
+                    <li>WhatsApp + Telegram channels</li>
+                    <li>Dedicated onboarding</li>
+                    <li>White-label option</li>
+                </ul>
+                <button class="btn btn-primary" style="width:100%;padding:12px;" onclick="startCheckout('team')">Get Started</button>
+            </div>
+        </div>
+        
+        <p style="font-size:13px;color:var(--text-tertiary);margin-top:32px;">All prices in CAD. Cancel anytime. 14-day money-back guarantee.</p>
     </div>
 </section>
 
@@ -1112,6 +1173,49 @@ async function signup(e, form) {
             btn.textContent = form.closest('nav') ? 'Get early access' : 'Join waitlist';
             btn.style.background = '';
         }, 2000);
+    }
+}
+
+// === PRICING & CHECKOUT ===
+// Show pricing section if ?pricing is in URL
+if (window.location.search.includes('pricing')) {
+    document.getElementById('pricing').style.display = 'block';
+    // Also update CTA to link to pricing
+    const ctaBtn = document.querySelector('.hero .btn-primary');
+    if (ctaBtn) ctaBtn.href = '#pricing';
+}
+
+// Stripe Checkout
+// In production, CHECKOUT_API points to dashboard server behind Cloudflare Tunnel
+// For now, falls back to the static checkout page
+const CHECKOUT_API = window.location.hostname === 'localhost' 
+    ? 'http://localhost:3456' 
+    : 'https://app.hirestella.co';
+
+async function startCheckout(plan) {
+    const btn = event.target;
+    btn.disabled = true;
+    btn.textContent = 'Redirecting...';
+    
+    try {
+        const res = await fetch(`${CHECKOUT_API}/api/checkout/create-session`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ plan })
+        });
+        
+        const data = await res.json();
+        
+        if (data.url) {
+            window.location.href = data.url;
+            return;
+        }
+        
+        // Fallback to static checkout page
+        window.location.href = `checkout-stripe.html?plan=${plan}`;
+    } catch (err) {
+        // API unreachable — fallback to static checkout
+        window.location.href = `checkout-stripe.html?plan=${plan}`;
     }
 }
 </script>
