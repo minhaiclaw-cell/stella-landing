@@ -650,15 +650,247 @@
     </div>
 </section>
 
-<!-- VIDEO DEMO PLACEHOLDER -->
-<section class="video-section">
-    <div class="video-container">
-        <div class="video-box">
-            <div class="video-play-btn"></div>
-            <div class="video-label">▶ Watch: Stella in action (2 min)</div>
+<!-- LIVE CHAT DEMO -->
+<section style="padding:100px 24px;background:var(--bg-warm);" id="demo">
+    <div class="container" style="text-align:center;">
+        <div class="eyebrow">See it in action</div>
+        <h2 style="font-size:clamp(26px,3.5vw,38px);font-weight:800;letter-spacing:-0.02em;margin-bottom:8px;">A real conversation with Stella</h2>
+        <p style="font-size:16px;color:var(--text-secondary);max-width:480px;margin:0 auto 48px;">This is what working with your AI team feels like. No scripts. No templates. Just results.</p>
+        
+        <div id="chatDemo" style="max-width:420px;margin:0 auto;background:#fff;border-radius:16px;border:1px solid var(--border);box-shadow:var(--shadow-lg);overflow:hidden;text-align:left;">
+            <!-- Chat header -->
+            <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;">
+                <div style="width:36px;height:36px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:14px;">S</div>
+                <div>
+                    <div style="font-weight:600;font-size:15px;color:var(--text);">Stella</div>
+                    <div style="font-size:12px;color:var(--green);display:flex;align-items:center;gap:4px;">
+                        <span style="width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block;"></span> Online
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Chat messages -->
+            <div id="chatDemoMessages" style="padding:20px;min-height:380px;display:flex;flex-direction:column;gap:16px;overflow:hidden;">
+            </div>
         </div>
+        
+        <button onclick="replayChat()" style="margin-top:20px;background:none;border:1px solid var(--border);border-radius:8px;padding:8px 16px;font-size:13px;color:var(--text-secondary);cursor:pointer;font-family:inherit;">↻ Replay</button>
     </div>
 </section>
+
+<style>
+    @keyframes typingDot {
+        0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
+        30% { opacity: 1; transform: translateY(-4px); }
+    }
+    .typing-dots span {
+        display: inline-block;
+        width: 7px; height: 7px;
+        border-radius: 50%;
+        background: #999;
+        margin: 0 2px;
+        animation: typingDot 1.4s infinite;
+    }
+    .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+    .chat-msg {
+        opacity: 0;
+        transform: translateY(10px);
+        transition: opacity 0.3s, transform 0.3s;
+    }
+    .chat-msg.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    .user-bubble {
+        background: var(--accent);
+        color: white;
+        padding: 12px 16px;
+        border-radius: 16px 16px 4px 16px;
+        font-size: 14px;
+        line-height: 1.5;
+        max-width: 85%;
+        align-self: flex-end;
+    }
+    .stella-bubble {
+        background: var(--bg-warm);
+        color: var(--text);
+        padding: 12px 16px;
+        border-radius: 16px 16px 16px 4px;
+        font-size: 14px;
+        line-height: 1.5;
+        max-width: 85%;
+        align-self: flex-start;
+    }
+    .stella-bubble ul {
+        list-style: none;
+        padding: 0;
+        margin: 8px 0;
+    }
+    .stella-bubble li {
+        padding: 2px 0;
+        font-size: 13px;
+    }
+    .stella-bubble li::before {
+        content: '•';
+        margin-right: 8px;
+        color: var(--accent);
+    }
+    .msg-time {
+        font-size: 11px;
+        color: var(--text-tertiary);
+        margin-top: 4px;
+    }
+</style>
+
+<script>
+(function() {
+    const chatScript = [
+        {
+            type: 'user',
+            text: 'Hey Stella, I just listed 42 Maple Ave in Leslieville. 3BR semi, $1.1M. Can you handle the marketing?',
+            time: '9:14 AM',
+            typeSpeed: 30
+        },
+        {
+            type: 'stella',
+            html: `On it. Here's what I'm doing:<ul><li>MLS description drafted</li><li>Social post created for Instagram & Facebook</li><li>Property brochure generating</li><li>Email blast queued for your buyer list</li></ul>I also noticed conditions expire on your 88 Queen deal in 3 days. Want me to follow up with the buyer's lawyer?`,
+            time: '9:14 AM',
+            revealSpeed: 8
+        },
+        {
+            type: 'user',
+            text: 'Yes please. And remind me to call the inspector tomorrow at 10.',
+            time: '9:15 AM',
+            typeSpeed: 35
+        },
+        {
+            type: 'stella',
+            html: `Done ✓<ul><li>Follow-up email sent to buyer's lawyer</li><li>Reminder set: Call inspector tomorrow 10:00 AM</li></ul>Your 42 Maple brochure is ready — want me to send it to the sellers?`,
+            time: '9:15 AM',
+            revealSpeed: 8
+        }
+    ];
+
+    const container = document.getElementById('chatDemoMessages');
+    let chatRunning = false;
+
+    function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+    async function typeText(el, text, speed) {
+        el.textContent = '';
+        for (let i = 0; i < text.length; i++) {
+            el.textContent += text[i];
+            await sleep(speed);
+        }
+    }
+
+    function showTypingIndicator() {
+        const div = document.createElement('div');
+        div.className = 'chat-msg visible';
+        div.id = 'typingIndicator';
+        div.innerHTML = `<div class="stella-bubble typing-dots"><span></span><span></span><span></span></div>`;
+        container.appendChild(div);
+        container.scrollTop = container.scrollHeight;
+        return div;
+    }
+
+    function removeTypingIndicator() {
+        const el = document.getElementById('typingIndicator');
+        if (el) el.remove();
+    }
+
+    async function revealHTML(el, html, speed) {
+        // Parse HTML, reveal text content progressively while keeping structure
+        el.innerHTML = html;
+        el.style.opacity = '0';
+        await sleep(50);
+        el.style.transition = 'opacity 0.4s';
+        el.style.opacity = '1';
+    }
+
+    async function playChat() {
+        if (chatRunning) return;
+        chatRunning = true;
+        container.innerHTML = '';
+
+        for (const msg of chatScript) {
+            await sleep(800);
+
+            if (msg.type === 'user') {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'chat-msg';
+                wrapper.style.alignSelf = 'flex-end';
+                wrapper.style.maxWidth = '85%';
+                
+                const bubble = document.createElement('div');
+                bubble.className = 'user-bubble';
+                bubble.style.display = 'inline-block';
+                wrapper.appendChild(bubble);
+                
+                const timeEl = document.createElement('div');
+                timeEl.className = 'msg-time';
+                timeEl.style.textAlign = 'right';
+                timeEl.textContent = msg.time;
+                wrapper.appendChild(timeEl);
+                
+                container.appendChild(wrapper);
+                requestAnimationFrame(() => wrapper.classList.add('visible'));
+                
+                await typeText(bubble, msg.text, msg.typeSpeed);
+                await sleep(600);
+                
+            } else {
+                // Show typing dots
+                const typing = showTypingIndicator();
+                await sleep(1200 + Math.random() * 800);
+                removeTypingIndicator();
+                
+                const wrapper = document.createElement('div');
+                wrapper.className = 'chat-msg';
+                wrapper.style.alignSelf = 'flex-start';
+                wrapper.style.maxWidth = '85%';
+                
+                const bubble = document.createElement('div');
+                bubble.className = 'stella-bubble';
+                wrapper.appendChild(bubble);
+                
+                const timeEl = document.createElement('div');
+                timeEl.className = 'msg-time';
+                timeEl.textContent = msg.time;
+                wrapper.appendChild(timeEl);
+                
+                container.appendChild(wrapper);
+                requestAnimationFrame(() => wrapper.classList.add('visible'));
+                
+                await revealHTML(bubble, msg.html, msg.revealSpeed);
+                await sleep(400);
+            }
+            
+            container.scrollTop = container.scrollHeight;
+        }
+
+        chatRunning = false;
+    }
+
+    window.replayChat = function() {
+        chatRunning = false;
+        playChat();
+    };
+
+    // Auto-play when section is visible
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting && !chatRunning) {
+                playChat();
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.3 });
+
+    observer.observe(document.getElementById('chatDemo'));
+})();
+</script>
 
 <!-- PROBLEM -->
 <section class="problem-section">
