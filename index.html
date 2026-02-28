@@ -1055,6 +1055,10 @@
       let playing = false;
       let abortCtrl = null;
 
+      function scrollToBottom(){
+        container.scrollTo({top:container.scrollHeight,behavior:'smooth'});
+      }
+
       function createBubble(role){
         const wrap = document.createElement('div');
         wrap.className = 'msg-bubble flex ' + (role==='user'?'justify-end':'justify-start');
@@ -1089,8 +1093,10 @@
         for(let i=0;i<text.length;i++){
           if(signal&&signal.aborted) throw new DOMException('Aborted','AbortError');
           bubble.textContent = text.slice(0,i+1);
+          if(i%10===0) scrollToBottom();
           await sleep(30, signal);
         }
+        scrollToBottom();
       }
 
       async function showProofCards(proofHtml, signal){
@@ -1106,7 +1112,7 @@
           if(signal&&signal.aborted) return;
           await sleep(300, signal);
           cards[i].classList.add('visible');
-          container.scrollTop = container.scrollHeight;
+          scrollToBottom();
         }
       }
 
@@ -1131,12 +1137,12 @@
             requestAnimationFrame(()=>wrap.classList.add('visible'));
             // Show proof cards after Stella's response
             if(msg.proof){
-              container.scrollTop = container.scrollHeight;
+              scrollToBottom();
               await sleep(600, signal);
               await showProofCards(msg.proof, signal);
             }
           }
-          container.scrollTop = container.scrollHeight;
+          scrollToBottom();
           await sleep(800, signal);
         }
       }
